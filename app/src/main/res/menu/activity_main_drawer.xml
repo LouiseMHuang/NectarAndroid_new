@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Compute">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_overview"
+                    android:title="Overview" />
+                <item
+                    android:id="@+id/nav_instances"
+                    android:title="Instances" />
+                <item
+                    android:id="@+id/nav_volumes"
+                    android:title="Volumes" />
+                <item
+                    android:id="@+id/nav_images"
+                    android:title="Images" />
+                <item
+                    android:id="@+id/nav_accessAndSecurity"
+                    android:title="Access and Security" />
+            </group>
+        </menu>
+    </item>
+
+    <item android:title="Network">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_networkTopology"
+                    android:title="NetworkTopology" />
+                <item
+                    android:id="@+id/nav_networks"
+                    android:title="Networks" />
+                <item
+                    android:id="@+id/nav_routers"
+                    android:title="Routers" />
+            </group>
+        </menu>
+    </item>
+    <item android:title="Account">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_settings"
+                    android:title="Settings" />
+                <item
+                    android:id="@+id/nav_signout"
+                    android:title="Sign out" />
+            </group>
+        </menu>
+    </item>
+
+
+</menu>
