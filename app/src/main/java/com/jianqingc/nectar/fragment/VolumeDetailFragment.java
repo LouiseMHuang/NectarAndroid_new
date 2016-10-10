@@ -28,7 +28,7 @@ public class VolumeDetailFragment extends Fragment {
         String volumeId = bundle.getString("volumeId");
         Toast.makeText(getActivity().getApplicationContext(), "volumeId: "+volumeId, Toast.LENGTH_SHORT).show();
         // Inflate the layout for this fragment
-        myView = inflater.inflate(R.layout.fragment_instance_detail, container, false);
+        myView = inflater.inflate(R.layout.fragment_volume_detail, container, false);
         return myView;
     }
 
