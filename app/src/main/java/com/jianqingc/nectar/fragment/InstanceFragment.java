@@ -105,6 +105,7 @@ public class InstanceFragment extends Fragment {
                             Bundle bundle = new Bundle();
                             try {
                                 String instanceId = instanceFragmentResultArray.getJSONObject(position).getString("instanceId");
+
                                 String instanceName = instanceFragmentResultArray.getJSONObject(position).getString("instanceName");
                                 String zone = instanceFragmentResultArray.getJSONObject(position).getString("zone");
                                 String address = instanceFragmentResultArray.getJSONObject(position).getString("IPv4Address");
