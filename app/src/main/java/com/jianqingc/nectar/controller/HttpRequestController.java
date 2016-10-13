@@ -66,23 +66,14 @@ public class HttpRequestController {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, loginUri, json0, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    String token = response.getJSONObject("access").getJSONObject("token").getString("id");
-                    //Log.i("token:", token);
-                    ResponseParser.getInstance(mApplicationContext).loginParser(response);
-                    String token2 = sharedPreferences.getString("tokenId", "error");
-                    //Log.i("token2:", token2);
-                    Intent i = new Intent(mApplicationContext, MainActivity.class);
-                    SharedPreferences sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putBoolean("isSignedOut", false);
-                    //editor.putString("isSignedOut2","False");
-                    editor.apply();
-                    context.startActivity(i);
-                    Toast.makeText(mApplicationContext, "Login Succeed", Toast.LENGTH_SHORT).show();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                ResponseParser.getInstance(mApplicationContext).loginParser(response);
+                Intent i = new Intent(mApplicationContext, MainActivity.class);
+                SharedPreferences sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("isSignedOut", false);
+                editor.apply();
+                context.startActivity(i);
+                Toast.makeText(mApplicationContext, "Login Succeed", Toast.LENGTH_SHORT).show();
             }
 
         }, new Response.ErrorListener() {
@@ -160,7 +151,6 @@ public class HttpRequestController {
                         String result = resultArray.toString();
                         callback.onSuccess(result);
                         // Display the first 500 characters of the response string.
-                        Toast.makeText(mApplicationContext, "Listing Instances Succeed", Toast.LENGTH_SHORT).show();
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -169,9 +159,9 @@ public class HttpRequestController {
                     Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
                     Intent i = new Intent(mApplicationContext, LoginActivity.class);
                     context.startActivity(i);
+                } else {
+                    Toast.makeText(mApplicationContext, "Listing Instances Failed", Toast.LENGTH_SHORT).show();
                 }
-                Toast.makeText(mApplicationContext, "Listing Instances Failed", Toast.LENGTH_SHORT).show();
-
             }
         }) {
             @Override
@@ -213,7 +203,6 @@ public class HttpRequestController {
                             e.printStackTrace();
                         }
                         // Display the first 500 characters of the response string.
-                        Toast.makeText(mApplicationContext, "Listing Instances Succeed", Toast.LENGTH_SHORT).show();
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -224,7 +213,7 @@ public class HttpRequestController {
                     context.startActivity(i);
                 }
                 Toast.makeText(mApplicationContext, "Listing Instances Failed", Toast.LENGTH_SHORT).show();
-
+                callback.onSuccess("error");
             }
         }) {
             @Override
@@ -241,7 +230,6 @@ public class HttpRequestController {
     public void listVolume(final VolleyCallback callback, final Context context) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String volumeV2ServiceURL = sharedPreferences.getString("volumeV2ServiceURL", "Error Getting volumeV2ServiceURL");
-        String tenantId = sharedPreferences.getString("tenantId", "Error Getting tenantId");
         String fullURL = volumeV2ServiceURL + "/volumes/detail";
         final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
         StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
@@ -253,7 +241,6 @@ public class HttpRequestController {
                         String result = resultArray.toString();
                         callback.onSuccess(result);
                         // Display the first 500 characters of the response string.
-                        Toast.makeText(mApplicationContext, "Listing Volume Succeed", Toast.LENGTH_SHORT).show();
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -263,7 +250,7 @@ public class HttpRequestController {
                     Intent i = new Intent(mApplicationContext, LoginActivity.class);
                     context.startActivity(i);
                 }
-                Toast.makeText(mApplicationContext, "Listing Instances Failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mApplicationContext, "Listing Volumes Failed", Toast.LENGTH_SHORT).show();
 
             }
         }) {
@@ -299,12 +286,18 @@ public class HttpRequestController {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error.networkResponse == null) {
-                    callback.onSuccess("123");
-                    Toast.makeText(mApplicationContext, "Pause Instance Succeed", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(mApplicationContext, error.networkResponse.toString(), Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                        }else {
+                        Toast.makeText(mApplicationContext,"Network Error", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                        }
+                    }
                 }
-            }
         }) {
             @Override
 
@@ -341,10 +334,16 @@ public class HttpRequestController {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error.networkResponse == null) {
-                    callback.onSuccess("123");
-                    Toast.makeText(mApplicationContext, "unpause Instance Succeed", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(mApplicationContext, error.networkResponse.toString(), Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Network Error", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
                 }
             }
         }) {
@@ -384,10 +383,16 @@ public class HttpRequestController {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error.networkResponse == null) {
-                    callback.onSuccess("123");
-                    Toast.makeText(mApplicationContext, "Stop Instance Succeed", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(mApplicationContext, error.networkResponse.toString(), Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Network Error", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
                 }
             }
         }) {
@@ -419,7 +424,6 @@ public class HttpRequestController {
         }
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullURL, json,
                 new Response.Listener<JSONObject>() {
-
                     @Override
                     public void onResponse(JSONObject response) {
                     }
@@ -427,10 +431,16 @@ public class HttpRequestController {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error.networkResponse == null) {
-                    callback.onSuccess("123");
-                    Toast.makeText(mApplicationContext, "start Instance Succeed", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(mApplicationContext, error.networkResponse.toString(), Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Network Error", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
                 }
             }
         }) {
@@ -469,10 +479,16 @@ public class HttpRequestController {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error.networkResponse == null) {
-                    callback.onSuccess("123");
-                    Toast.makeText(mApplicationContext, "suspend Instance Succeed", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(mApplicationContext, error.networkResponse.toString(), Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Network Error", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
                 }
             }
         }) {
@@ -512,10 +528,16 @@ public class HttpRequestController {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error.networkResponse == null) {
-                    callback.onSuccess("123");
-                    Toast.makeText(mApplicationContext, "resume Instance Succeed", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(mApplicationContext, error.networkResponse.toString(), Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Network Error", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
                 }
             }
         }) {
@@ -556,10 +578,16 @@ public class HttpRequestController {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error.networkResponse == null) {
-                    callback.onSuccess("123");
-                    Toast.makeText(mApplicationContext, "Reboot Instance Succeed", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(mApplicationContext, error.networkResponse.toString(), Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Network Error", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
                 }
             }
         }) {
@@ -597,10 +625,16 @@ public class HttpRequestController {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error.networkResponse == null) {
-                    callback.onSuccess("123");
-                    Toast.makeText(mApplicationContext, "Delete Instance Succeed", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(mApplicationContext, error.networkResponse.toString(), Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Network Error", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
                 }
             }
         }) {
@@ -617,16 +651,19 @@ public class HttpRequestController {
         NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
     }
     //SnapshotButton
-    public void snapshot(final VolleyCallback callback, String instanceId) {
+    public void snapshot(final VolleyCallback callback, String instanceId, String snapshotName) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
         String fullURL = computeServiceURL + "/servers/" + instanceId + "/action";
         final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
         JSONObject json1 = new JSONObject();
         JSONObject json2 = new JSONObject();
+        JSONObject json3 = new JSONObject();
         try {
-            json2.put("type", "HARD");
-            json1.put("reboot",json2);
+            json3.put("meta_var", "meta_val");
+            json2.put("metadata",json3);
+            json2.put("name",snapshotName);
+            json1.put("createImage",json2);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -640,10 +677,16 @@ public class HttpRequestController {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error.networkResponse == null) {
-                    callback.onSuccess("123");
-                    Toast.makeText(mApplicationContext, "Reboot Instance Succeed", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(mApplicationContext, error.networkResponse.toString(), Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Network Error", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
                 }
             }
         }) {

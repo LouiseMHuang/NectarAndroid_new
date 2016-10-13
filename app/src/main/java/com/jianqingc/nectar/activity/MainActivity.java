@@ -54,15 +54,13 @@ public class MainActivity extends AppCompatActivity
 
 
         //toolbar.setTitleTextColor();
+        FloatingActionButton fabRight = (FloatingActionButton) findViewById(R.id.fabRight);
+        FloatingActionButton fabLeft = (FloatingActionButton) findViewById(R.id.fabLeft);
+        fabRight.setVisibility(View.GONE);
+        fabRight.setEnabled(false);
+        fabLeft.setVisibility(View.GONE);
+        fabLeft.setEnabled(false);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -83,6 +81,7 @@ public class MainActivity extends AppCompatActivity
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
     }
+
 
     @Override
     public void onBackPressed() {
