@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/imageView"
         android:layout_alignParentTop="true"
-        android:src="@drawable/NectarCloud"
+        android:src="@drawable/nectar_login_image"
         android:layout_marginTop="60sp" />
 
     <EditText

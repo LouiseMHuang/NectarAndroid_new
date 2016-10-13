@@ -105,11 +105,12 @@ public class InstanceFragment extends Fragment {
                             Bundle bundle = new Bundle();
                             try {
                                 String instanceId = instanceFragmentResultArray.getJSONObject(position).getString("instanceId");
-
                                 String instanceName = instanceFragmentResultArray.getJSONObject(position).getString("instanceName");
                                 String zone = instanceFragmentResultArray.getJSONObject(position).getString("zone");
                                 String address = instanceFragmentResultArray.getJSONObject(position).getString("IPv4Address");
                                 String instanceStatus = instanceFragmentResultArray.getJSONObject(position).getString("instanceStatus");
+                                bundle.putString("instanceId",instanceId);
+                               /*
                                 ArrayList<String> bundleArrayList = new ArrayList<String>();
                                 bundleArrayList.add(instanceId);
                                 bundleArrayList.add(instanceName);
@@ -117,6 +118,7 @@ public class InstanceFragment extends Fragment {
                                 bundleArrayList.add(address);
                                 bundleArrayList.add(instanceStatus);
                                 bundle.putStringArrayList("bundleParam", bundleArrayList);
+                                */
                                 FragmentTransaction ft = getActivity().getSupportFragmentManager()
                                         .beginTransaction();
                                 InstanceDetailFragment instanceDetailFragment = new InstanceDetailFragment();

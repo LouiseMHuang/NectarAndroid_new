@@ -1,6 +1,7 @@
 package com.jianqingc.nectar.fragment;
 
 
+import android.app.Dialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.TimerTask;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,6 +43,7 @@ public class InstanceDetailFragment extends Fragment {
         ft.detach(this);
         ft.attach(this);
         ft.commit();
+
     }
     public void enable(Button btn){
         btn.setEnabled(true);
@@ -69,57 +73,330 @@ public class InstanceDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         myView = inflater.inflate(R.layout.fragment_instance_detail, container, false);
         Bundle bundle = getArguments();
-        ArrayList<String> bundleParam = bundle.getStringArrayList("bundleParam");
-        instanceId = bundleParam.get(0);
-        HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(callback,getActivity().getApplicationContext(),instanceId);
+        instanceId = bundle.getString("instanceId");
+        final Button startBtn = (Button)myView.findViewById(R.id.startBtn);
+        final Button stopBtn = (Button)myView.findViewById(R.id.stopBtn);
+        final Button pauseBtn = (Button)myView.findViewById(R.id.pauseBtn);
+        final Button unpauseBtn = (Button)myView.findViewById(R.id.unpauseBtn);
+        final Button suspendBtn = (Button)myView.findViewById(R.id.suspendBtn);
+        final Button resumeBtn = (Button)myView.findViewById(R.id.resumeBtn);
+        final Button deleteBtn = (Button)myView.findViewById(R.id.deleteBtn);
+        final Button rebootBtn = (Button)myView.findViewById(R.id.rebootBtn);
+        final Button snapshotBtn = (Button)myView.findViewById(R.id.snapshotBtn);
+        final java.util.Timer timer = new java.util.Timer(true);
+        HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                setView(result);
+            }
+        }, getActivity().getApplicationContext(), instanceId);
+// set button onclick
+        //set dialog which shows the spinner
+        final Dialog mOverlayDialog = new Dialog(getActivity(), android.R.style.Theme_Panel); //display an invisible overlay dialog to prevent user interaction and pressing back
+        mOverlayDialog.setCancelable(false);
+        mOverlayDialog.setContentView(R.layout.loading_dialog);
+        //set pause button
+        pauseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOverlayDialog.show();
+                HttpRequestController.getInstance(getActivity().getApplicationContext()).pause(new HttpRequestController.VolleyCallback() {
+                    @Override
+                    public void onSuccess(String result) {
+                        TimerTask task = new TimerTask() {
+                            @Override
+                            public void run() {
+                                Log.i("pause button", "onSuccess ");
+                                HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
+                                    @Override
+                                    public void onSuccess(String result) {
+                                        setView(result);
+                                        mOverlayDialog.dismiss();
+                                    }
+                                }, getActivity().getApplicationContext(), instanceId);
+                            }
+                        };
+                        timer.schedule(task, 3000);
+                    }
 
-        // Inflate the layout for this fragment
+                }, instanceId);
+            }
+        });
+        // set unpause button
+        unpauseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOverlayDialog.show();
+                HttpRequestController.getInstance(getActivity().getApplicationContext()).unpause(new HttpRequestController.VolleyCallback() {
+                    @Override
+                    public void onSuccess(String result) {
+                        TimerTask task = new TimerTask() {
+                            @Override
+                            public void run() {
+                                Log.i("unpause button", "onSuccess ");
+                                HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
+                                    @Override
+                                    public void onSuccess(String result) {
+                                        setView(result);
+                                        mOverlayDialog.dismiss();
+                                    }
+                                }, getActivity().getApplicationContext(), instanceId);
+                            }
+                        };
+                        timer.schedule(task, 3000);
+                    }
+
+                }, instanceId);
+            }
+        });
+        // set stop button
+        stopBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOverlayDialog.show();
+                HttpRequestController.getInstance(getActivity().getApplicationContext()).stop(new HttpRequestController.VolleyCallback() {
+                    @Override
+                    public void onSuccess(String result) {
+                        TimerTask task = new TimerTask() {
+                            @Override
+                            public void run() {
+                                Log.i("stop button", "onSuccess ");
+                                HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
+                                    @Override
+                                    public void onSuccess(String result) {
+                                        setView(result);
+                                        mOverlayDialog.dismiss();
+                                    }
+                                }, getActivity().getApplicationContext(), instanceId);
+                            }
+                        };
+                        timer.schedule(task, 3000);
+                    }
+
+                }, instanceId);
+            }
+        });
+
+        // set start button
+        startBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOverlayDialog.show();
+
+                HttpRequestController.getInstance(getActivity().getApplicationContext()).start(new HttpRequestController.VolleyCallback() {
+                    @Override
+                    public void onSuccess(String result) {
+                        TimerTask task = new TimerTask() {
+                            @Override
+                            public void run() {
+                                Log.i("start button", "onSuccess ");
+                                HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
+                                    @Override
+                                    public void onSuccess(String result) {
+                                        setView(result);
+                                        mOverlayDialog.dismiss();
+                                    }
+                                }, getActivity().getApplicationContext(), instanceId);
+                            }
+                        };
+                        timer.schedule(task, 3000);
+                    }
+
+                }, instanceId);
+            }
+        });
+        // set suspend button
+        suspendBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOverlayDialog.show();
+
+                HttpRequestController.getInstance(getActivity().getApplicationContext()).suspend(new HttpRequestController.VolleyCallback() {
+                    @Override
+                    public void onSuccess(String result) {
+                        TimerTask task = new TimerTask() {
+                            @Override
+                            public void run() {
+                                Log.i("suspend button", "onSuccess ");
+                                HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
+                                    @Override
+                                    public void onSuccess(String result) {
+                                        setView(result);
+                                        mOverlayDialog.dismiss();
+                                    }
+                                }, getActivity().getApplicationContext(), instanceId);
+                            }
+                        };
+                        timer.schedule(task, 3000);
+                    }
+
+                }, instanceId);
+            }
+        });
+        // set resume button
+        resumeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOverlayDialog.show();
+                HttpRequestController.getInstance(getActivity().getApplicationContext()).resume(new HttpRequestController.VolleyCallback() {
+                    @Override
+                    public void onSuccess(String result) {
+                        TimerTask task = new TimerTask() {
+                            @Override
+                            public void run() {
+                                Log.i("resume button", "onSuccess ");
+                                HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
+                                    @Override
+                                    public void onSuccess(String result) {
+                                        setView(result);
+                                        mOverlayDialog.dismiss();
+                                    }
+                                }, getActivity().getApplicationContext(), instanceId);
+                            }
+                        };
+                        timer.schedule(task, 3000);
+                    }
+
+                }, instanceId);
+            }
+        });
+        // set reboot button
+        rebootBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOverlayDialog.show();
+                HttpRequestController.getInstance(getActivity().getApplicationContext()).reboot(new HttpRequestController.VolleyCallback() {
+                    @Override
+                    public void onSuccess(String result) {
+                        TimerTask task = new TimerTask() {
+                            @Override
+                            public void run() {
+                                Log.i("reboot button", "onSuccess ");
+                                HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
+                                    @Override
+                                    public void onSuccess(String result) {
+                                        setView(result);
+                                        mOverlayDialog.dismiss();
+                                    }
+                                }, getActivity().getApplicationContext(), instanceId);
+                            }
+                        };
+                        timer.schedule(task, 3000);
+                    }
+
+                }, instanceId);
+            }
+        });
+        // set delete button
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOverlayDialog.show();
+                HttpRequestController.getInstance(getActivity().getApplicationContext()).delete(new HttpRequestController.VolleyCallback() {
+                    @Override
+                    public void onSuccess(String result) {
+                        TimerTask task = new TimerTask() {
+                            @Override
+                            public void run() {
+                                Log.i("delete button", "onSuccess ");
+                                HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
+                                    @Override
+                                    public void onSuccess(String result) {
+                                        setView(result);
+                                        mOverlayDialog.dismiss();
+                                    }
+                                }, getActivity().getApplicationContext(), instanceId);
+                            }
+                        };
+                        timer.schedule(task, 3000);
+                    }
+
+                }, instanceId);
+            }
+        });
+        /*
+        // set snapshot button
+        snapshotBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOverlayDialog.show();
+                HttpRequestController.getInstance(getActivity().getApplicationContext()).snapshot(new HttpRequestController.VolleyCallback() {
+                    @Override
+                    public void onSuccess(String result) {
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        Log.i("pause button", "onSuccess ");
+                        HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
+                            @Override
+                            public void onSuccess(String result) {
+                                setView(result);
+                                mOverlayDialog.dismiss();
+                            }
+                        }, getActivity().getApplicationContext(), instanceId);
+                    }
+
+                }, instanceId);
+            }
+        });
+        */
 
         return myView;
     }
 
-    HttpRequestController.VolleyCallback callback = new HttpRequestController.VolleyCallback() {
-        @Override
-        public void onSuccess(String result) {
-
-            try {
-                JSONObject JSONResult = new JSONObject(result);
-                instanceId = JSONResult.getString("id");
-                instanceName = JSONResult.getString("name");
-                zone = JSONResult.getString("zone");
-                address = JSONResult.getString("address");
-                instanceStatus = JSONResult.getString("status");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            ((TextView)myView.findViewById(R.id.instanceIdTV)).setText(instanceId);
-            ((TextView)myView.findViewById(R.id.instanceNameTV)).setText(instanceName);
-            ((TextView)myView.findViewById(R.id.instanceZoneTV)).setText(zone);
-            ((TextView)myView.findViewById(R.id.instanceIPAddressTV)).setText(address);
-            TextView instanceStatusTV = (TextView)myView.findViewById(R.id.instanceStatusTV);
-            instanceStatusTV.setText(instanceStatus);
-            //Set Status Color
-            if (instanceStatus.equals("ACTIVE")){
+    public void setView(String result){
+        try {
+            JSONObject JSONResult = new JSONObject(result);
+            instanceId = JSONResult.getString("id");
+            instanceName = JSONResult.getString("name");
+            zone = JSONResult.getString("zone");
+            address = JSONResult.getString("address");
+            instanceStatus = JSONResult.getString("status");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        TextView instanceIdTV = (TextView)myView.findViewById(R.id.instanceIdTV);
+        TextView instanceNameTV= (TextView)myView.findViewById(R.id.instanceNameTV);
+        TextView instanceZoneTV = (TextView)myView.findViewById(R.id.instanceZoneTV);
+        TextView instanceIPAddressTV = (TextView)myView.findViewById(R.id.instanceIPAddressTV);
+        TextView instanceStatusTV = (TextView)myView.findViewById(R.id.instanceStatusTV);
+        Button startBtn = (Button)myView.findViewById(R.id.startBtn);
+        Button stopBtn = (Button)myView.findViewById(R.id.stopBtn);
+        Button pauseBtn = (Button)myView.findViewById(R.id.pauseBtn);
+        Button unpauseBtn = (Button)myView.findViewById(R.id.unpauseBtn);
+        Button suspendBtn = (Button)myView.findViewById(R.id.suspendBtn);
+        Button resumeBtn = (Button)myView.findViewById(R.id.resumeBtn);
+        Button deleteBtn = (Button)myView.findViewById(R.id.deleteBtn);
+        Button rebootBtn = (Button)myView.findViewById(R.id.rebootBtn);
+        Button snapshotBtn = (Button)myView.findViewById(R.id.snapshotBtn);
+        instanceIdTV.setText(instanceId);
+        instanceNameTV.setText(instanceName);
+        instanceZoneTV.setText(zone);
+        instanceIPAddressTV.setText(address);
+        instanceStatusTV.setText(instanceStatus);
+        // set status text color
+        switch (instanceStatus) {
+            case "ACTIVE":
                 instanceStatusTV.setTextColor(Color.parseColor("#2eb82e"));
-            } else if((instanceStatus.equals("DELETED"))||(instanceStatus.equals("ERROR"))|| (instanceStatus.equals("PAUSED"))|| (instanceStatus.equals("SHUTOFF"))|| (instanceStatus.equals("SUSPENDED"))){
+                break;
+            case "DELETED":
+            case "ERROR":
+            case "PAUSED":
+            case "SHUTOFF":
+            case "SUSPENDED":
                 instanceStatusTV.setTextColor(Color.parseColor("#ff0000"));
-            } else{
+                break;
+            default:
                 instanceStatusTV.setTextColor(Color.parseColor("#e9a92a"));
-            }
+                break;
+        }
 
-            Button startBtn = (Button)myView.findViewById(R.id.startBtn);
-            Button stopBtn = (Button)myView.findViewById(R.id.stopBtn);
-            Button pauseBtn = (Button)myView.findViewById(R.id.pauseBtn);
-            Button unpauseBtn = (Button)myView.findViewById(R.id.unpauseBtn);
-            Button suspendBtn = (Button)myView.findViewById(R.id.suspendBtn);
-            Button resumeBtn = (Button)myView.findViewById(R.id.resumeBtn);
-            Button deleteBtn = (Button)myView.findViewById(R.id.deleteBtn);
-            Button rebootBtn = (Button)myView.findViewById(R.id.rebootBtn);
-            Button snapshotBtn = (Button)myView.findViewById(R.id.snapshotBtn);
-            //set button visibility
+        //set button visibility
 
-            if(instanceStatus.equals("ACTIVE")){
+        switch (instanceStatus) {
+            case "ACTIVE":
                 enable(pauseBtn);
                 enable(suspendBtn);
                 enable(stopBtn);
@@ -129,8 +406,8 @@ public class InstanceDetailFragment extends Fragment {
                 hide(unpauseBtn);
                 hide(resumeBtn);
                 hide(startBtn);
-            }
-            else if(instanceStatus.equals("SUSPENDED")){
+                break;
+            case "SUSPENDED":
                 disable(pauseBtn);
                 hide(unpauseBtn);
                 enable(resumeBtn);
@@ -140,7 +417,8 @@ public class InstanceDetailFragment extends Fragment {
                 disable(rebootBtn);
                 enable(snapshotBtn);
                 enable(deleteBtn);
-            }else if(instanceStatus.equals("PAUSED")){
+                break;
+            case "PAUSED":
                 enable(unpauseBtn);
                 hide(pauseBtn);
                 disable(suspendBtn);
@@ -150,7 +428,8 @@ public class InstanceDetailFragment extends Fragment {
                 disable(rebootBtn);
                 enable(snapshotBtn);
                 enable(deleteBtn);
-            }else if(instanceStatus.equals("SHUTOFF")){
+                break;
+            case "SHUTOFF":
                 disable(pauseBtn);
                 hide(unpauseBtn);
                 disable(suspendBtn);
@@ -160,7 +439,8 @@ public class InstanceDetailFragment extends Fragment {
                 enable(rebootBtn);
                 enable(snapshotBtn);
                 enable(deleteBtn);
-            } else{
+                break;
+            default:
                 disable(pauseBtn);
                 hide(unpauseBtn);
                 disable(suspendBtn);
@@ -170,89 +450,10 @@ public class InstanceDetailFragment extends Fragment {
                 disable(rebootBtn);
                 disable(snapshotBtn);
                 disable(deleteBtn);
-            }
-// set button onclick
-            //set pause button
-            pauseBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    HttpRequestController.getInstance(getActivity().getApplicationContext()).pause(new HttpRequestController.VolleyCallback() {
-                        @Override
-                        public void onSuccess(String result) {
-                            Log.i("pause button", "onSuccess ");
-                            try {
-                                Thread.sleep(1500);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            refresh();
-                        }
-                    }, instanceId);
-                }
-            });
-            // set unpause button
-            unpauseBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    HttpRequestController.getInstance(getActivity().getApplicationContext()).unpause(new HttpRequestController.VolleyCallback() {
-                        @Override
-                        public void onSuccess(String result) {
-                            Log.i("unpause button", "onSuccess ");
-                            refresh();
-                        }
-                    }, instanceId);
-                }
-            });
-            // set stop button
-            stopBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    HttpRequestController.getInstance(getActivity().getApplicationContext()).stop(new HttpRequestController.VolleyCallback() {
-                        @Override
-                        public void onSuccess(String result) {
-                            refresh();
-                        }
-                    }, instanceId);
-                }
-            });
-            // set start button
-            startBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    HttpRequestController.getInstance(getActivity().getApplicationContext()).start(new HttpRequestController.VolleyCallback() {
-                        @Override
-                        public void onSuccess(String result) {
-                            refresh();
-                        }
-                    }, instanceId);
-                }
-            });
-            // set suspend button
-            suspendBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    HttpRequestController.getInstance(getActivity().getApplicationContext()).suspend(new HttpRequestController.VolleyCallback() {
-                        @Override
-                        public void onSuccess(String result) {
-                            refresh();
-                        }
-                    }, instanceId);
-                }
-            });
-            // set resume button
-            resumeBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    HttpRequestController.getInstance(getActivity().getApplicationContext()).resume(new HttpRequestController.VolleyCallback() {
-                        @Override
-                        public void onSuccess(String result) {
-                            refresh();
-                        }
-                    }, instanceId);
-                }
-            });
-
+                break;
         }
-    };
+
+    }
+
 
 }
