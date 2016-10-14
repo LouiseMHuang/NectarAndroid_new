@@ -219,7 +219,8 @@
             android:layout_below="@+id/snapshotBtn"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="10sp"
-            android:layout_marginLeft="40sp" />
+            android:layout_marginLeft="40sp"
+            android:layout_marginBottom="60sp" />
 
 
 

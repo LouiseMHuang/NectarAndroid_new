@@ -97,7 +97,7 @@ public class HttpRequestController {
     }
 
     //overview
-    public void listOverview(final Context context) {
+    public void listOverview(final VolleyCallback callback,final Context context) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
         String fullURL = computeServiceURL + "/limits";
@@ -106,11 +106,7 @@ public class HttpRequestController {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        try {
-                            JSONObject respondJSON = new JSONObject(response);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        callback.onSuccess(response);
                         // Display the first 500 characters of the response string.
                         Toast.makeText(mApplicationContext, "Listing limits Succeed", Toast.LENGTH_SHORT).show();
                     }

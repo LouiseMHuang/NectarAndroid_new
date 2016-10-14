@@ -520,58 +520,60 @@ public class InstanceDetailFragment extends Fragment {
             }
         });
         // set snapshot button
-        snapshotBtn.setOnClickListener(new View.OnClickListener() {
-            EditText input = new EditText(getActivity());
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setMessage("Please enter the name of this snapshot:").setView(input)
-                        .setPositiveButton("Create", new DialogInterface.OnClickListener() {
+        final EditText input = new EditText(getActivity());
+        final AlertDialog.Builder builderSnapshot = new AlertDialog.Builder(getActivity());
+        builderSnapshot.setMessage("Please enter the name of this snapshot:").setView(input)
+                .setPositiveButton("Create", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String snapshotName = input.getText().toString();
+                        dialog.dismiss();
+                        mOverlayDialog.show();
+                        HttpRequestController.getInstance(getActivity().getApplicationContext()).snapshot(new HttpRequestController.VolleyCallback() {
                             @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mOverlayDialog.show();
-                                String snapshotName = input.getText().toString();
-                                HttpRequestController.getInstance(getActivity().getApplicationContext()).snapshot(new HttpRequestController.VolleyCallback() {
-                                    @Override
-                                    public void onSuccess(String result) {
-                                        if(result.equals("success")) {
-                                            TimerTask task = new TimerTask() {
-                                                @Override
-                                                public void run() {
-                                                    HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
-                                                        @Override
-                                                        public void onSuccess(String result) {
-                                                            setView(result);
-                                                            mOverlayDialog.dismiss();
-                                                            Toast.makeText(getActivity().getApplicationContext(), "Snapshot Succeed", Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    }, getActivity().getApplicationContext(), instanceId);
-                                                }
-                                            };
-                                            timer.schedule(task, 7000);
-                                        } else{
+                            public void onSuccess(String result) {
+                                if(result.equals("success")) {
+                                    TimerTask task = new TimerTask() {
+                                        @Override
+                                        public void run() {
                                             HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
                                                 @Override
                                                 public void onSuccess(String result) {
                                                     setView(result);
                                                     mOverlayDialog.dismiss();
+                                                    Toast.makeText(getActivity().getApplicationContext(), "Snapshot Succeed", Toast.LENGTH_SHORT).show();
                                                 }
                                             }, getActivity().getApplicationContext(), instanceId);
                                         }
-                                    }
-                                }, instanceId,snapshotName);
+                                    };
+                                    timer.schedule(task, 7000);
+                                } else{
+                                    HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
+                                        @Override
+                                        public void onSuccess(String result) {
+                                            setView(result);
+                                            mOverlayDialog.dismiss();
+                                        }
+                                    }, getActivity().getApplicationContext(), instanceId);
+                                }
                             }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        }).show();
+                        }, instanceId,snapshotName);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        final AlertDialog alertDialog = builderSnapshot.create();
+
+        snapshotBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.show();
             }
         });
-
-
         return myView;
     }
 

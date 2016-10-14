@@ -79,6 +79,9 @@ public class MainActivity extends AppCompatActivity
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        FragmentManager manager = getSupportFragmentManager();
+        OverviewFragment overviewFragment = new OverviewFragment();
+        manager.beginTransaction().replace(R.id.relativelayout_for_fragment, overviewFragment, overviewFragment.getTag()).commit();
 
     }
 
@@ -126,7 +129,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_overview) {
             Toast.makeText(MainActivity.this, "overview", Toast.LENGTH_SHORT).show();
             OverviewFragment overviewFragment = new OverviewFragment();
-                manager.beginTransaction().replace(R.id.relativelayout_for_fragment, overviewFragment, overviewFragment.getTag()).commit();
+            manager.beginTransaction().replace(R.id.relativelayout_for_fragment, overviewFragment, overviewFragment.getTag()).commit();
         } else if (id == R.id.nav_instances) {
             Toast.makeText(MainActivity.this, "instances", Toast.LENGTH_SHORT).show();
             InstanceFragment instanceFragment = new InstanceFragment();
@@ -146,7 +149,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_routers) {
 
-        }else if (id == R.id.nav_settings) {
+        }else if (id == R.id.nav_about) {
 
         }else if (id == R.id.nav_signout) {
             Intent i = new Intent(getApplicationContext(), LoginActivity.class);
