@@ -108,7 +108,7 @@ public class HttpRequestController {
                     public void onResponse(String response) {
                         callback.onSuccess(response);
                         // Display the first 500 characters of the response string.
-                        Toast.makeText(mApplicationContext, "Listing limits Succeed", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(mApplicationContext, "Listing limits Succeed", Toast.LENGTH_SHORT).show();
                     }
                 }, new Response.ErrorListener() {
             @Override

@@ -25,6 +25,7 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.jianqingc.nectar.controller.HttpRequestController;
+import com.jianqingc.nectar.fragment.AboutFragment;
 import com.jianqingc.nectar.fragment.InstanceFragment;
 import com.jianqingc.nectar.fragment.OverviewFragment;
 import com.jianqingc.nectar.R;
@@ -132,11 +133,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         FragmentManager manager = getSupportFragmentManager();
         if (id == R.id.nav_overview) {
-            Toast.makeText(MainActivity.this, "overview", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this, "overview", Toast.LENGTH_SHORT).show();
             OverviewFragment overviewFragment = new OverviewFragment();
             manager.beginTransaction().replace(R.id.relativelayout_for_fragment, overviewFragment, overviewFragment.getTag()).commit();
         } else if (id == R.id.nav_instances) {
-            Toast.makeText(MainActivity.this, "instances", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this, "instances", Toast.LENGTH_SHORT).show();
             InstanceFragment instanceFragment = new InstanceFragment();
             manager.beginTransaction().replace(R.id.relativelayout_for_fragment, instanceFragment, instanceFragment.getTag()).commit();
         } else if (id == R.id.nav_volumes) {
@@ -155,6 +156,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_routers) {
 
         }else if (id == R.id.nav_about) {
+            AboutFragment aboutFragment = new AboutFragment();
+            manager.beginTransaction().replace(R.id.relativelayout_for_fragment, aboutFragment, aboutFragment.getTag()).commit();
+
 
         }else if (id == R.id.nav_signout) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
