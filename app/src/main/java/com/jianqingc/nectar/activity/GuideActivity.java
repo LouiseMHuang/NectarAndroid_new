@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.app.Activity;
@@ -91,6 +92,7 @@ public class GuideActivity extends AppCompatActivity {
         views.add(inflater.inflate(R.layout.pager_layout1, null));
         views.add(inflater.inflate(R.layout.pager_layout2, null));
         views.add(inflater.inflate(R.layout.pager_layout3, null));
+        views.add(inflater.inflate(R.layout.pager_layout4, null));
         myPagerAdapter = new MyPagerAdapter(this, views);
         mImageViews = new ImageView[views.size()];
         drawCircle();
@@ -183,7 +185,7 @@ public class GuideActivity extends AppCompatActivity {
         public Object instantiateItem(ViewGroup arg0, int arg1) {
             (arg0).addView(mViews.get(arg1), 0);
             if (arg1 == mViews.size() - 1) {
-                TextView enterBtn = (TextView) arg0
+                Button enterBtn = (Button) arg0
                         .findViewById(R.id.guide_enter);
                 enterBtn.setOnClickListener(new OnClickListener() {
                     @Override

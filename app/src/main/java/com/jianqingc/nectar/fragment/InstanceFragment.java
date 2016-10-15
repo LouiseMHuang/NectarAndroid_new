@@ -95,8 +95,9 @@ public class InstanceFragment extends Fragment {
 
                     FunDapter adapter = new FunDapter(InstanceFragment.this.getActivity(), instanceListArray, R.layout.instance_list_pattern, dictionary);
                     ListView instanceLV = (ListView) myView.findViewById(R.id.listViewInstance);
-                    instanceLV.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
+                    instanceLV.setAdapter(adapter);
+
 
 
                     AdapterView.OnItemClickListener onListClick = new AdapterView.OnItemClickListener() {

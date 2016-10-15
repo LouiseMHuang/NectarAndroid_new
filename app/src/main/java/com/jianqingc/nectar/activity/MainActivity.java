@@ -1,5 +1,6 @@
 package com.jianqingc.nectar.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -7,6 +8,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -22,12 +24,15 @@ import android.widget.Toast;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.jianqingc.nectar.controller.HttpRequestController;
 import com.jianqingc.nectar.fragment.InstanceFragment;
 import com.jianqingc.nectar.fragment.OverviewFragment;
 import com.jianqingc.nectar.R;
 import com.jianqingc.nectar.fragment.VolumeFragment;
 import com.jianqingc.nectar.fragment.AccessAndSecurityFragment;
 import com.jianqingc.nectar.fragment.ImageFragment;
+
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -152,18 +157,27 @@ public class MainActivity extends AppCompatActivity
         }else if (id == R.id.nav_about) {
 
         }else if (id == R.id.nav_signout) {
-            Intent i = new Intent(getApplicationContext(), LoginActivity.class);
-            SharedPreferences sharedPreferences =  getApplicationContext().getSharedPreferences("nectar_android", 0);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("isSignedOut",true);
-            //editor.putString("isSignedOut2","yes");
-            editor.apply();
-            // Log.i("isSignedOut ",Boolean.toString(!sharedPreferences.getBoolean("isSignedOut", true)));
-            // Log.i("isSignedOut2 ",sharedPreferences.getString("isSignedOut2", "error"));
-            startActivity(i);
-            Toast.makeText(getApplicationContext(), "Successfully Signed Out!", Toast.LENGTH_SHORT).show();
-        }
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Are you sure to sign out?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+                            SharedPreferences sharedPreferences =  getApplicationContext().getSharedPreferences("nectar_android", 0);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putBoolean("isSignedOut",true);
+                            editor.apply();
+                            startActivity(i);
+                            Toast.makeText(getApplicationContext(), "Successfully Signed Out!", Toast.LENGTH_SHORT).show();
+                        }
+                    }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }).show();
 
+        }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

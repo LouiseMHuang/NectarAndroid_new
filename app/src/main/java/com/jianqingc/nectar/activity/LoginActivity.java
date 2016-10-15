@@ -35,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
         //Test
         tenantName = "android-nectar";
         username = "j.chen99@student.unimelb.edu.au";
-        password = "ODU0YmJmZWFjOWU5NjNj";
+        password = "MDE5NTYzMTk4MjQ0ZjNk";
         //Test
         Log.i("tenantName: ", tenantName);
         Log.i("username: ", username);
