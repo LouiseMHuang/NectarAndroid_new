@@ -4,12 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,22 +13,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
 import com.jianqingc.nectar.R;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +25,7 @@ public class GuideActivity extends AppCompatActivity {
 
     private ViewPager mViewPager;
     /**
-     * 装载小圆圈的LinearLayout
+     * LinearLayout with circles/beads
      */
     private LinearLayout indicatorLayout;
     /**
@@ -48,7 +33,7 @@ public class GuideActivity extends AppCompatActivity {
      */
     private List<View> views;
     /**
-     * ViewPager下面的小圆圈
+     * Circles/Balls at the bottom of ViewPager
      */
     private ImageView[] mImageViews;
     private MyPagerAdapter myPagerAdapter;
@@ -104,22 +89,12 @@ public class GuideActivity extends AppCompatActivity {
     private void drawCircle() {
         int num = views.size();
         for (int i = 0; i < num; i++) {
-            //实例化每一个mImageViews[i]
             mImageViews[i] = new ImageView(this);
-           /*if (i == 0) {
-               // 默认选中第一张照片，所以将第一个小圆圈变为icon_carousel_02
-               mImageViews[i].setImageResource(R.drawable.round_2);
-           }else{
-                mImageViews[i].setImageResource(R.drawable.circle_2);
-            }
-            // 给每个小圆圈都设置间隔
-            */
             mImageViews[i].setImageResource(R.drawable.circle_2);
             mImageViews[i].setPadding(5, 5, 5, 5);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
             params.gravity = Gravity.CENTER_VERTICAL;
-            // 让每一个小圆圈都在LinearLayout的CENTER_VERTICAL（中间垂直）
             indicatorLayout.addView(mImageViews[i], params);
         }
 
@@ -132,7 +107,7 @@ public class GuideActivity extends AppCompatActivity {
         }
 
         /**
-         * 页面有所改变，如果是当前页面，将小圆圈改为icon_carousel_02，其他页面则改为icon_carousel_01
+         * set this page as black round bead and set the rest as circle/donut
          */
         public void onPageSelected(int arg0) {
             for (int i = 0; i < mImageViews.length; i++) {
@@ -179,7 +154,7 @@ public class GuideActivity extends AppCompatActivity {
         }
 
         /**
-         * 实例化页卡，如果变为最后一页，则获取它的button并且添加点击事件
+         * instantiate guide pages
          */
         @Override
         public Object instantiateItem(ViewGroup arg0, int arg1) {
@@ -190,7 +165,9 @@ public class GuideActivity extends AppCompatActivity {
                 enterBtn.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // isFirstRun保存为false，并进入登录界面
+                        /*
+                        save isFirstRun as false and jump to login activity
+                         */
                         SharedPreferences sharedPreferences =  getApplicationContext().getSharedPreferences("nectar_android", 0);
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putBoolean("isFirstRun",false);
