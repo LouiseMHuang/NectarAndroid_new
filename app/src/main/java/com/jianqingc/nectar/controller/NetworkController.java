@@ -9,7 +9,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
 /**
- * Created by scjc on 2016/9/28.
+ * Created by Jianqing Chen on 2016/9/28.
  * The NetworkController is designed to maintain Volley ASYNC HTTP request queue service
  */
 public class NetworkController {

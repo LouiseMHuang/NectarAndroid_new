@@ -1,7 +1,6 @@
 package com.jianqingc.nectar.fragment;
 
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,14 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-
 import com.jianqingc.nectar.R;
 import com.jianqingc.nectar.controller.HttpRequestController;
-
 import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
-import org.achartengine.chart.PieChart;
 import org.achartengine.model.CategorySeries;
 import org.achartengine.renderer.DefaultRenderer;
 import org.achartengine.renderer.SimpleSeriesRenderer;
@@ -43,6 +38,10 @@ public class OverviewFragment extends Fragment {
         HttpRequestController.getInstance(getContext()).listOverview(new HttpRequestController.VolleyCallback() {
             @Override
             public void onSuccess(String result) {
+                /**
+                 * Draw pie charts
+                 * Detailed documentation of AChartEngine @ www.achartengine.org/
+                 */
                 try {
                     JSONObject jsonResult = new JSONObject(result);
                     int totalInstancesUsed = Integer.parseInt(jsonResult.getJSONObject("limits").getJSONObject("absolute").getString("totalInstancesUsed"));
@@ -111,9 +110,9 @@ public class OverviewFragment extends Fragment {
                     LinearLayout instancesGraphicalLayout = (LinearLayout)myView.findViewById(R.id.instancesGraphicalLayout);
                     LinearLayout RAMGraphicalLayout = (LinearLayout)myView.findViewById(R.id.RAMGraphicalLayout);
                     LinearLayout coresGraphicalLayout = (LinearLayout)myView.findViewById(R.id.coresGraphicalLayout);
-                    instancesGraphicalLayout.addView(instancesGraphicalView,0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,400));
-                    RAMGraphicalLayout.addView(RAMGraphicalView,0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 450));
-                    coresGraphicalLayout.addView(coresGraphicalView,0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 500));
+                    instancesGraphicalLayout.addView(instancesGraphicalView,0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,600));
+                    RAMGraphicalLayout.addView(RAMGraphicalView,0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 600));
+                    coresGraphicalLayout.addView(coresGraphicalView,0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 600));
 
 
                 } catch (JSONException e) {

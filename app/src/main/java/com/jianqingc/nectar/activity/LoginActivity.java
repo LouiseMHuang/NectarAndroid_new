@@ -22,7 +22,10 @@ import java.util.TimeZone;
 
 public class LoginActivity extends AppCompatActivity {
 
-
+    /**
+     * Hide keyboard when clicking on the screen except for the input boxes
+     * @param view
+     */
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -35,8 +38,10 @@ public class LoginActivity extends AppCompatActivity {
         Log.i("tenantName: ", tenantName);
         Log.i("username: ", username);
         Log.i("password: ", password);
+        /**
+         * Call LoginHttp Function defined in controller/HttpRequestController
+         */
         HttpRequestController.getInstance(this).loginHttp(tenantName,username,password,this);
-
     }
 
 
@@ -65,8 +70,8 @@ public class LoginActivity extends AppCompatActivity {
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         Log.i("Expires",tokenExpires);
         try {
-            /*
-            Add auto login function. When login token hasn't expired and the user wasn't signed out last time.
+            /**
+             *Autto login function. When login token hasn't expired and the user wasn't signed out last time.
              */
             Date tokenExpireTime = sdf.parse(tokenExpires);
             Date currentTime = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime();

@@ -11,24 +11,19 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jianqingc.nectar.R;
 import com.jianqingc.nectar.controller.HttpRequestController;
 
-import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.TimerTask;
 
 /**
@@ -44,13 +39,11 @@ public class InstanceDetailFragment extends Fragment {
     public InstanceDetailFragment() {
         // Required empty public constructor
     }
-    private void refresh() {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.detach(this);
-        ft.attach(this);
-        ft.commit();
 
-    }
+    /**
+     * Enable and disable buttons and set Buttons color.
+     * @param btn
+     */
     public void enable(Button btn){
         btn.setEnabled(true);
         btn.setVisibility(View.VISIBLE);
@@ -96,12 +89,16 @@ public class InstanceDetailFragment extends Fragment {
                 setView(result);
             }
         }, getActivity().getApplicationContext(), instanceId);
-// set button onclick
-        //set dialog which shows the spinner
+
+        /**
+         * set spinner which is actually a dialog
+         */
         final Dialog mOverlayDialog = new Dialog(getActivity(), android.R.style.Theme_Panel); //display an invisible overlay dialog to prevent user interaction and pressing back
         mOverlayDialog.setCancelable(false);
         mOverlayDialog.setContentView(R.layout.loading_dialog);
-//Set refresh/back button.
+        /**
+         * Set refresh/back button.
+         */
         FloatingActionButton fabRight = (FloatingActionButton) getActivity().findViewById(R.id.fabRight);
         fabRight.setVisibility(View.VISIBLE);
         fabRight.setEnabled(true);
@@ -130,7 +127,9 @@ public class InstanceDetailFragment extends Fragment {
                 manager.beginTransaction().replace(R.id.relativelayout_for_fragment, instanceFragment, instanceFragment.getTag()).commit();
             }
         });
-        //set pause button
+        /**
+         * Set Pause button onclick
+         */
         pauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -139,6 +138,9 @@ public class InstanceDetailFragment extends Fragment {
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        /**
+                         * The spinner
+                         */
                         mOverlayDialog.show();
                         HttpRequestController.getInstance(getActivity().getApplicationContext()).pause(new HttpRequestController.VolleyCallback() {
                             @Override
@@ -157,6 +159,10 @@ public class InstanceDetailFragment extends Fragment {
                                             }, getActivity().getApplicationContext(), instanceId);
                                         }
                                     };
+                                    /**
+                                     * Delay 7 secs after the button onclick method is called.
+                                     * Wait for server status update. The server status is not modified in real-time.
+                                     */
                                     timer.schedule(task, 7000);
                                 } else{
                                     HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
@@ -179,7 +185,9 @@ public class InstanceDetailFragment extends Fragment {
                         }).show();
             }
         });
-        // set unpause button
+        /**
+         * set Unpause button onclick
+         */
         unpauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -206,6 +214,10 @@ public class InstanceDetailFragment extends Fragment {
                                                     }, getActivity().getApplicationContext(), instanceId);
                                                 }
                                             };
+                                            /**
+                                             * Delay 7 secs after the button onclick method is called.
+                                             * Wait for server status update. The server status is not modified in real-time.
+                                             */
                                             timer.schedule(task, 7000);
                                         } else{
                                             HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
@@ -228,7 +240,9 @@ public class InstanceDetailFragment extends Fragment {
                         }).show();
             }
         });
-        // set stop button
+        /**
+         * set Stop button onclick
+         */
         stopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -255,6 +269,10 @@ public class InstanceDetailFragment extends Fragment {
                                                     }, getActivity().getApplicationContext(), instanceId);
                                                 }
                                             };
+                                            /**
+                                             * Delay 7 secs after the button onclick method is called.
+                                             * Wait for server status update. The server status is not modified in real-time.
+                                             */
                                             timer.schedule(task, 7000);
                                         } else{
                                             HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
@@ -277,7 +295,9 @@ public class InstanceDetailFragment extends Fragment {
                         }).show();
             }
         });
-        // set start button
+        /**
+         * set Start button onclick
+         */
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -304,6 +324,10 @@ public class InstanceDetailFragment extends Fragment {
                                                     }, getActivity().getApplicationContext(), instanceId);
                                                 }
                                             };
+                                            /**
+                                             * Delay 7 secs after the button onclick method is called.
+                                             * Wait for server status update. The server status is not modified in real-time.
+                                             */
                                             timer.schedule(task, 7000);
                                         } else{
                                             HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
@@ -326,7 +350,9 @@ public class InstanceDetailFragment extends Fragment {
                         }).show();
             }
         });
-        //set suspend button
+        /**
+         * set Suspend button onclick
+         */
         suspendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -353,6 +379,10 @@ public class InstanceDetailFragment extends Fragment {
                                                     }, getActivity().getApplicationContext(), instanceId);
                                                 }
                                             };
+                                            /**
+                                             * Delay 7 secs after the button onclick method is called.
+                                             * Wait for server status update. The server status is not modified in real-time.
+                                             */
                                             timer.schedule(task, 7000);
                                         } else{
                                             HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
@@ -375,7 +405,9 @@ public class InstanceDetailFragment extends Fragment {
                         }).show();
             }
         });
-        // set resume button
+        /**
+         * set Resume button onclick
+         */
         resumeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -402,6 +434,10 @@ public class InstanceDetailFragment extends Fragment {
                                                     }, getActivity().getApplicationContext(), instanceId);
                                                 }
                                             };
+                                            /**
+                                             * Delay 7 secs after the button onclick method is called.
+                                             * Wait for server status update. The server status is not modified in real-time.
+                                             */
                                             timer.schedule(task, 7000);
                                         } else{
                                             HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
@@ -424,7 +460,9 @@ public class InstanceDetailFragment extends Fragment {
                         }).show();
             }
         });
-        // set reboot button
+        /**
+         * set Reboot button onclick
+         */
         rebootBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -451,6 +489,10 @@ public class InstanceDetailFragment extends Fragment {
                                                     }, getActivity().getApplicationContext(), instanceId);
                                                 }
                                             };
+                                            /**
+                                             * Delay 7 secs after the button onclick method is called.
+                                             * Wait for server status update. The server status is not modified in real-time.
+                                             */
                                             timer.schedule(task, 7000);
                                         } else{
                                             HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
@@ -473,7 +515,9 @@ public class InstanceDetailFragment extends Fragment {
                         }).show();
             }
         });
-        // set delete button
+        /**
+         * set Delete button onclick
+         */
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -497,6 +541,10 @@ public class InstanceDetailFragment extends Fragment {
                                                     manager.beginTransaction().replace(R.id.relativelayout_for_fragment, instanceFragment, instanceFragment.getTag()).commit();
                                                 }
                                             };
+                                            /**
+                                             * Delay 7 secs after the button onclick method is called.
+                                             * Wait for server status update. The server status is not modified in real-time.
+                                             */
                                             timer.schedule(task, 7000);
                                         } else{
                                             HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
@@ -519,7 +567,9 @@ public class InstanceDetailFragment extends Fragment {
                         }).show();
             }
         });
-        // set snapshot button
+        /**
+         * set Snapshot button onclick
+         */
         final EditText input = new EditText(getActivity());
         final AlertDialog.Builder builderSnapshot = new AlertDialog.Builder(getActivity());
         builderSnapshot.setMessage("Please enter the name of this snapshot:").setView(input)
@@ -546,6 +596,10 @@ public class InstanceDetailFragment extends Fragment {
                                             }, getActivity().getApplicationContext(), instanceId);
                                         }
                                     };
+                                    /**
+                                     * Delay 7 secs after the button onclick method is called.
+                                     * Wait for server status update. The server status is not modified in real-time.
+                                     */
                                     timer.schedule(task, 7000);
                                 } else{
                                     HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
@@ -579,7 +633,9 @@ public class InstanceDetailFragment extends Fragment {
 
     @Override
     public void onPause() {
-        // Remove refresh and back buttons when this fragment is hiden.
+        /**
+         *  Remove refresh and back buttons when this fragment is hiden.
+         */
         super.onPause();
         FloatingActionButton fabRight = (FloatingActionButton) getActivity().findViewById(R.id.fabRight);
         FloatingActionButton fabLeft = (FloatingActionButton) getActivity().findViewById(R.id.fabLeft);
@@ -591,7 +647,10 @@ public class InstanceDetailFragment extends Fragment {
 
 
     public void setView(String result){
-        // set the textviews and buttons according to the instance status.
+        /**
+         * Set the textviews and buttons according to the instance status.
+         */
+
         try {
             JSONObject JSONResult = new JSONObject(result);
             instanceId = JSONResult.getString("id");
@@ -621,8 +680,9 @@ public class InstanceDetailFragment extends Fragment {
         instanceZoneTV.setText(zone);
         instanceIPAddressTV.setText(address);
         instanceStatusTV.setText(instanceStatus);
-
-        // set status text color
+        /**
+         * set status text color
+         */
         switch (instanceStatus) {
             case "ACTIVE":
                 instanceStatusTV.setTextColor(Color.parseColor("#2eb82e"));//green
@@ -638,8 +698,9 @@ public class InstanceDetailFragment extends Fragment {
                 instanceStatusTV.setTextColor(Color.parseColor("#e9a92a"));//orange
                 break;
         }
-
-        //set button visibility
+        /**
+         * Set Buttons visibility
+         */
         switch (instanceStatus) {
             case "ACTIVE":
                 enable(pauseBtn);

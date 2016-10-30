@@ -55,11 +55,13 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Nectar Cloud");
+        //toolbar.setTitleTextColor();
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("nectar_android", 0);
 
 
-
-        //toolbar.setTitleTextColor();
+        /**
+         * FloatingActionButton Left and right are Back Button and Refresh Button in Instance Detail Fragment
+         */
         FloatingActionButton fabRight = (FloatingActionButton) findViewById(R.id.fabRight);
         FloatingActionButton fabLeft = (FloatingActionButton) findViewById(R.id.fabLeft);
         fabRight.setVisibility(View.GONE);
@@ -85,6 +87,9 @@ public class MainActivity extends AppCompatActivity
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        /**
+         * Set the default view as Overview Fragment
+         */
         FragmentManager manager = getSupportFragmentManager();
         OverviewFragment overviewFragment = new OverviewFragment();
         manager.beginTransaction().replace(R.id.relativelayout_for_fragment, overviewFragment, overviewFragment.getTag()).commit();
@@ -132,12 +137,13 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         FragmentManager manager = getSupportFragmentManager();
+        /**
+         * To created more items in the Navigation Drawer, simply add more entries in res/menu/activity_main_drawer.xml and define actions as below.
+         */
         if (id == R.id.nav_overview) {
-            //Toast.makeText(MainActivity.this, "overview", Toast.LENGTH_SHORT).show();
             OverviewFragment overviewFragment = new OverviewFragment();
             manager.beginTransaction().replace(R.id.relativelayout_for_fragment, overviewFragment, overviewFragment.getTag()).commit();
         } else if (id == R.id.nav_instances) {
-            //Toast.makeText(MainActivity.this, "instances", Toast.LENGTH_SHORT).show();
             InstanceFragment instanceFragment = new InstanceFragment();
             manager.beginTransaction().replace(R.id.relativelayout_for_fragment, instanceFragment, instanceFragment.getTag()).commit();
         } else if (id == R.id.nav_volumes) {
@@ -158,8 +164,6 @@ public class MainActivity extends AppCompatActivity
         }else if (id == R.id.nav_about) {
             AboutFragment aboutFragment = new AboutFragment();
             manager.beginTransaction().replace(R.id.relativelayout_for_fragment, aboutFragment, aboutFragment.getTag()).commit();
-
-
         }else if (id == R.id.nav_signout) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Are you sure to sign out?")
@@ -169,6 +173,9 @@ public class MainActivity extends AppCompatActivity
                             Intent i = new Intent(getApplicationContext(), LoginActivity.class);
                             SharedPreferences sharedPreferences =  getApplicationContext().getSharedPreferences("nectar_android", 0);
                             SharedPreferences.Editor editor = sharedPreferences.edit();
+                            /**
+                             * Disable Auto Login
+                             */
                             editor.putBoolean("isSignedOut",true);
                             editor.apply();
                             startActivity(i);

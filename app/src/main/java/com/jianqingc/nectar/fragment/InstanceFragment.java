@@ -36,12 +36,6 @@ public class InstanceFragment extends Fragment {
         // Required empty public constructor
     }
 
-    private void refresh() {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.detach(this);
-        ft.attach(this);
-        ft.commit();
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,17 +46,18 @@ public class InstanceFragment extends Fragment {
             @Override
             public void onSuccess(String result) {
                 try {
+                    /**
+                     * Display instance Info with the Listview and Fundapter
+                     * You can also use simple ArrayAdapter to replace Fundatper.
+                     */
                     instanceFragmentResultArray = new JSONArray(result);
                     ArrayList<String[]> instanceListArray = new ArrayList<String[]>();
-                    //do something with jsonArray
                     for (int i = 0; i < instanceFragmentResultArray.length(); i++) {
                         String[] instanceList = {
                                 instanceFragmentResultArray.getJSONObject(i).getString("instanceId"),
                                 instanceFragmentResultArray.getJSONObject(i).getString("instanceName"),
                                 instanceFragmentResultArray.getJSONObject(i).getString("instanceStatus"),
                                 instanceFragmentResultArray.getJSONObject(i).getString("instanceUpdatedTime"),
-                                //instanceFragmentResultArray.getJSONObject(i).getString("IPv4Address"),
-                                //instanceFragmentResultArray.getJSONObject(i).getString("zone")
                         };
                         instanceListArray.add(instanceList);
                     }
@@ -103,23 +98,13 @@ public class InstanceFragment extends Fragment {
                     AdapterView.OnItemClickListener onListClick = new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            /**
+                             * Clicking on the items in the Listview will lead to Instance Detail Fragment.
+                             */
                             Bundle bundle = new Bundle();
                             try {
                                 String instanceId = instanceFragmentResultArray.getJSONObject(position).getString("instanceId");
-                                String instanceName = instanceFragmentResultArray.getJSONObject(position).getString("instanceName");
-                                String zone = instanceFragmentResultArray.getJSONObject(position).getString("zone");
-                                String address = instanceFragmentResultArray.getJSONObject(position).getString("IPv4Address");
-                                String instanceStatus = instanceFragmentResultArray.getJSONObject(position).getString("instanceStatus");
                                 bundle.putString("instanceId",instanceId);
-                               /*
-                                ArrayList<String> bundleArrayList = new ArrayList<String>();
-                                bundleArrayList.add(instanceId);
-                                bundleArrayList.add(instanceName);
-                                bundleArrayList.add(zone);
-                                bundleArrayList.add(address);
-                                bundleArrayList.add(instanceStatus);
-                                bundle.putStringArrayList("bundleParam", bundleArrayList);
-                                */
                                 FragmentTransaction ft = getActivity().getSupportFragmentManager()
                                         .beginTransaction();
                                 InstanceDetailFragment instanceDetailFragment = new InstanceDetailFragment();
@@ -132,11 +117,6 @@ public class InstanceFragment extends Fragment {
                         }
                     };
                     instanceLV.setOnItemClickListener(onListClick);
-
-
-
-                    //refresh
-                    //refresh();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

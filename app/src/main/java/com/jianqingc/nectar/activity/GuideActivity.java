@@ -29,7 +29,7 @@ public class GuideActivity extends AppCompatActivity {
      */
     private LinearLayout indicatorLayout;
     /**
-     * ViewPager的每个页面集合
+     * ViewPager Guide pages
      */
     private List<View> views;
     /**
@@ -56,6 +56,9 @@ public class GuideActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         SharedPreferences sharedPreferences =  getApplicationContext().getSharedPreferences("nectar_android", 0);
+        /**
+         * Make sure the guide pages are only shown once.
+         */
         Boolean isFirstRun = sharedPreferences.getBoolean("isFirstRun",true);
         if (!isFirstRun){
             initLogin();
@@ -165,8 +168,8 @@ public class GuideActivity extends AppCompatActivity {
                 enterBtn.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        /*
-                        save isFirstRun as false and jump to login activity
+                        /**
+                         * set isFirstRun as false and jump to login activity
                          */
                         SharedPreferences sharedPreferences =  getApplicationContext().getSharedPreferences("nectar_android", 0);
                         SharedPreferences.Editor editor = sharedPreferences.edit();

@@ -8,8 +8,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Created by scjc on 2016/10/1.
- * The ResponseParser is designed to parse the response of Login HTTP request with keyboard input tenant name, username and password
+ * Created by Jianqing Chen on 2016/10/1.
+ * The ResponseParser is designed to parse the response of Login, List Volumes and List Instances HTTP requests.
+ * Store the response into the SharedPreferences after parsing.
  */
 public class ResponseParser {
     private static ResponseParser mInstance;

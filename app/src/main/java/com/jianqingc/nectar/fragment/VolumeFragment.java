@@ -78,7 +78,10 @@ public class VolumeFragment extends Fragment {
                             return volumeList[2];
                         }
                     });
-
+                    /**
+                     * Display instance Info with the Listview and Fundapter
+                     * You can also use simple ArrayAdapter to replace Fundatper.
+                     */
                     FunDapter adapter = new FunDapter(VolumeFragment.this.getActivity(),volumeListArray,R.layout.volume_list_pattern,dictionary);
                     ListView volumeLV = (ListView) myView.findViewById(R.id.listViewVolume);
                     volumeLV.setAdapter(adapter);

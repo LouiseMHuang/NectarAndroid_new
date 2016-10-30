@@ -3,7 +3,6 @@ package com.jianqingc.nectar.controller;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -24,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by scjc on 2016/10/2.
+ * Created by Jianqing Chen on 2016/10/2.
  */
 public class HttpRequestController {
     private Context mApplicationContext;
@@ -46,11 +45,21 @@ public class HttpRequestController {
     public HttpRequestController(Context context) {
         this.mApplicationContext = context.getApplicationContext();
     }
-    // loginHttp for Login activity
+
+    /**
+     * Login Http Request sent to Keystone.
+     * @param tenantName
+     * @param username
+     * @param password
+     * @param context
+     */
 
     public void loginHttp(String tenantName, String username, String password, final Context context) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String loginUri = "https://keystone.rc.nectar.org.au:5000/v2.0/tokens";
+        /**
+         * Assemble Json Object According to NeCTAR API documentation
+         */
         JSONObject json0 = new JSONObject();
         JSONObject json1 = new JSONObject();
         JSONObject json2 = new JSONObject();
@@ -70,6 +79,9 @@ public class HttpRequestController {
                 Intent i = new Intent(mApplicationContext, MainActivity.class);
                 SharedPreferences sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
+                /**
+                 * Enable auto-login function
+                 */
                 editor.putBoolean("isSignedOut", false);
                 editor.apply();
                 context.startActivity(i);
@@ -96,7 +108,12 @@ public class HttpRequestController {
         NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
     }
 
-    //overview
+    /**
+     * List Overview Http Request
+     * Pass the String response to Overview Fragment. Overview Fragment can then draw graphs based on the response.
+     * @param callback
+     * @param context
+     */
     public void listOverview(final VolleyCallback callback,final Context context) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
@@ -122,6 +139,11 @@ public class HttpRequestController {
 
             }
         }) {
+            /**
+             * Set Token inside  the Http Request Header
+             * @return
+             * @throws AuthFailureError
+             */
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<String, String>();
@@ -132,7 +154,11 @@ public class HttpRequestController {
         NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
     }
 
-    //list instance
+    /**
+     * List Instance Http Request showing the servers detail
+     * @param callback
+     * @param context
+     */
     public void listInstance(final VolleyCallback callback, final Context context) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
@@ -170,7 +196,12 @@ public class HttpRequestController {
         NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
     }
 
-    //list single instance
+    /**
+     * List Instance Detail for the specific instance the user clicks in the InstanceFragment listview
+     * @param callback
+     * @param context
+     * @param instanceId
+     */
     public void listSingleInstance(final VolleyCallback callback, final Context context, String instanceId) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
@@ -180,6 +211,10 @@ public class HttpRequestController {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        /**
+                         *  Pass the response of HTTP request to the Fragment
+                         *  Server ID, AZ,IP address, Name, and Status
+                         */
                         try {
                             JSONObject resp = new JSONObject(response);
                             JSONObject result = new JSONObject();
@@ -222,7 +257,11 @@ public class HttpRequestController {
         NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
     }
 
-    //list volume
+    /**
+     * List Volume Http Request
+     * @param callback
+     * @param context
+     */
     public void listVolume(final VolleyCallback callback, final Context context) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String volumeV2ServiceURL = sharedPreferences.getString("volumeV2ServiceURL", "Error Getting volumeV2ServiceURL");
@@ -260,7 +299,11 @@ public class HttpRequestController {
         NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
     }
 
-    //PauseBtn
+    /**
+     * Server action: Pause Http Request
+     * @param callback
+     * @param instanceId
+     */
     public void pause(final VolleyCallback callback, String instanceId) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
@@ -281,6 +324,9 @@ public class HttpRequestController {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                /**
+                 * Successful Response is null so we have to separate it from the real Errors
+                 */
                 if (error.networkResponse == null) {
                     callback.onSuccess("success");
                 } else{
@@ -308,7 +354,11 @@ public class HttpRequestController {
         NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
     }
 
-    //UnpauseBtn
+    /**
+     *  Server action: Unpause Http Request
+     * @param callback
+     * @param instanceId
+     */
     public void unpause(final VolleyCallback callback, String instanceId) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
@@ -357,7 +407,11 @@ public class HttpRequestController {
     }
 
 
-    //StopButton
+    /**
+     *  Server action: Stop Http Request
+     * @param callback
+     * @param instanceId
+     */
     public void stop(final VolleyCallback callback, String instanceId) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
@@ -406,7 +460,11 @@ public class HttpRequestController {
     }
 
 
-    //StartButton
+    /**
+     *  Server action: Pause Start Request
+     * @param callback
+     * @param instanceId
+     */
     public void start(final VolleyCallback callback, String instanceId) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
@@ -453,7 +511,11 @@ public class HttpRequestController {
         NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
     }
 
-    //Suspend button
+    /**
+     *  Server action: Suspend Http Request
+     * @param callback
+     * @param instanceId
+     */
     public void suspend(final VolleyCallback callback, String instanceId) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
@@ -502,7 +564,11 @@ public class HttpRequestController {
     }
 
 
-    //ResumeButton
+    /**
+     *  Server action: Resume Http Request
+     * @param callback
+     * @param instanceId
+     */
     public void resume(final VolleyCallback callback, String instanceId) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
@@ -550,7 +616,11 @@ public class HttpRequestController {
         NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
     }
 
-    //RebootButton
+    /**
+     *  Server action: Reboot Http Request
+     * @param callback
+     * @param instanceId
+     */
     public void reboot(final VolleyCallback callback, String instanceId) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
@@ -599,7 +669,12 @@ public class HttpRequestController {
         };
         NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
     }
-    //DeleteButton
+
+    /**
+     *  Server action: Delete Http Request
+     * @param callback
+     * @param instanceId
+     */
     public void delete(final VolleyCallback callback, String instanceId) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
@@ -646,7 +721,13 @@ public class HttpRequestController {
         };
         NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
     }
-    //SnapshotButton
+
+    /**
+     *  Server action: Snapshot Http Request
+     * @param callback
+     * @param instanceId
+     * @param snapshotName
+     */
     public void snapshot(final VolleyCallback callback, String instanceId, String snapshotName) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
