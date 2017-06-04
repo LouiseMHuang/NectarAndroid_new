@@ -1,3 +1,3 @@
-# NectarAndroid
-Android APP for Nectar Cloud (The university of Melbourne)
-To be continued later
+# NectarAndroid_new
+Android version of Nectar Cloud App (The university of Melbourne)
+
