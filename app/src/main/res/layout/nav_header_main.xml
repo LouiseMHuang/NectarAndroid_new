@@ -21,7 +21,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="false"
         android:layout_marginTop="40dp"
-        android:textColor="#000000"
+        android:textColor="#ffffff"
         android:id="@+id/tenantNameInNavHeader" />
 
     <TextView
@@ -32,6 +32,6 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_marginBottom="20dp"
-        android:textColor="#000000" />
+        android:textColor="#ffffff" />
 
 </RelativeLayout>

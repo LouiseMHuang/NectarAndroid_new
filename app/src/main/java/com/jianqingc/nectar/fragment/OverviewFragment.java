@@ -82,24 +82,25 @@ public class OverviewFragment extends Fragment {
                     instanceRenderer.setPanEnabled(false);
                     instanceRenderer.setShowLegend(false);
                     instanceRenderer.setZoomEnabled(false);
-                    instanceRenderer.setChartTitleTextSize(20);
-                    instanceRenderer.setLabelsTextSize(20);
+                    instanceRenderer.setChartTitleTextSize(36);
+                    instanceRenderer.setLabelsTextSize(34);
                     instanceRenderer.setLabelsColor(Color.BLACK);
+                    //instanceRenderer.setMargins(new int[]{40,50,35,50});
                     RAMRenderer.setStartAngle(270);
                     RAMRenderer.setClickEnabled(false);
                     RAMRenderer.setPanEnabled(false);
                     RAMRenderer.setShowLegend(false);
                     RAMRenderer.setZoomEnabled(false);
-                    RAMRenderer.setChartTitleTextSize(20);
-                    RAMRenderer.setLabelsTextSize(20);
+                    RAMRenderer.setChartTitleTextSize(36);
+                    RAMRenderer.setLabelsTextSize(34);
                     RAMRenderer.setLabelsColor(Color.BLACK);
                     coresRenderer.setStartAngle(270);
                     coresRenderer.setClickEnabled(false);
                     coresRenderer.setPanEnabled(false);
                     coresRenderer.setShowLegend(false);
                     coresRenderer.setZoomEnabled(false);
-                    coresRenderer.setChartTitleTextSize(20);
-                    coresRenderer.setLabelsTextSize(20);
+                    coresRenderer.setChartTitleTextSize(36);
+                    coresRenderer.setLabelsTextSize(34);
                     coresRenderer.setLabelsColor(Color.BLACK);
                     instanceRenderer.setChartTitle("Instances\nUsed "+ totalInstancesUsed + " of " + maxTotalInstances);
                     RAMRenderer.setChartTitle("RAM\nUsed "+ totalRAMUsed + "MB of " + maxTotalRAMSize +"MB");
@@ -110,9 +111,9 @@ public class OverviewFragment extends Fragment {
                     LinearLayout instancesGraphicalLayout = (LinearLayout)myView.findViewById(R.id.instancesGraphicalLayout);
                     LinearLayout RAMGraphicalLayout = (LinearLayout)myView.findViewById(R.id.RAMGraphicalLayout);
                     LinearLayout coresGraphicalLayout = (LinearLayout)myView.findViewById(R.id.coresGraphicalLayout);
-                    instancesGraphicalLayout.addView(instancesGraphicalView,0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,600));
-                    RAMGraphicalLayout.addView(RAMGraphicalView,0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 600));
-                    coresGraphicalLayout.addView(coresGraphicalView,0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 600));
+                    instancesGraphicalLayout.addView(instancesGraphicalView,0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,900));
+                    RAMGraphicalLayout.addView(RAMGraphicalView,0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 900));
+                    coresGraphicalLayout.addView(coresGraphicalView,0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 900));
 
 
                 } catch (JSONException e) {

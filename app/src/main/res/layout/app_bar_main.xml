@@ -7,6 +7,26 @@
     android:fitsSystemWindows="true"
     tools:context=".activity.MainActivity">
 
+    <include layout="@layout/content_main" />
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="12dp"
+        android:src="@drawable/refresh_icon"
+        app:backgroundTint="#ffffff"
+        android:background="#ffffff" />
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_margin="12dp"
+        android:src="@drawable/back_icon"
+        app:backgroundTint="#ffffff"
+        android:background="#ffffff" />
+
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,25 +41,5 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_main" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fabRight"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/refresh_icon"
-        app:backgroundTint="#ffffff"
-        android:background="#ffffff" />
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fabLeft"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|start"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/back_icon"
-        app:backgroundTint="#ffffff"
-        android:background="#ffffff" />
 
 </android.support.design.widget.CoordinatorLayout>

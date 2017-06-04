@@ -1,5 +1,6 @@
 package com.jianqingc.nectar.activity;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,7 +9,11 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -18,25 +23,35 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.widget.Button;
+import android.support.v4.view.ViewPager;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.jianqingc.nectar.controller.HttpRequestController;
 import com.jianqingc.nectar.fragment.AboutFragment;
+import com.jianqingc.nectar.fragment.AddRuleSGFragment;
+import com.jianqingc.nectar.fragment.CreateVolumeFragment;
 import com.jianqingc.nectar.fragment.InstanceFragment;
+import com.jianqingc.nectar.fragment.KeyPairFragment;
+import com.jianqingc.nectar.fragment.LaunchInstanceImageFragment;
 import com.jianqingc.nectar.fragment.OverviewFragment;
 import com.jianqingc.nectar.R;
 import com.jianqingc.nectar.fragment.VolumeFragment;
 import com.jianqingc.nectar.fragment.AccessAndSecurityFragment;
 import com.jianqingc.nectar.fragment.ImageFragment;
 
+
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener{
+
     NavigationView navigationView;
 
 
@@ -46,7 +61,6 @@ public class MainActivity extends AppCompatActivity
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     private GoogleApiClient client;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +82,7 @@ public class MainActivity extends AppCompatActivity
         fabRight.setEnabled(false);
         fabLeft.setVisibility(View.GONE);
         fabLeft.setEnabled(false);
+
 
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -109,25 +124,231 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    //This is an optional menu, if it is necessary, the return value can be setted to true to
+    // display the menu option.
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        menu.findItem(R.id.launch_instance).setVisible(false);
+        menu.findItem(R.id.add_SG).setVisible(false);
+        menu.findItem(R.id.add_KP).setVisible(false);
+        menu.findItem(R.id.import_KP).setVisible(false);
+        menu.findItem(R.id.add_rule_sg).setVisible(false);
+        menu.findItem(R.id.create_volume_sg).setVisible(false);
 
+
+        //return true;
         return true;
     }
+
+    //invalidateOptionMenu()
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
+        final FragmentManager manager = getSupportFragmentManager();
+        final Dialog mOverlayDialog = new Dialog(this, android.R.style.Theme_Panel); //display an invisible overlay dialog to prevent user interaction and pressing back
+        mOverlayDialog.setCancelable(false);
+        mOverlayDialog.setContentView(R.layout.loading_dialog);
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.launch_instance) {
+
+                    LaunchInstanceImageFragment fra=new LaunchInstanceImageFragment();
+                    manager.beginTransaction().replace(R.id.relativelayout_for_fragment, fra, fra.getTag()).commit();
+
             return true;
         }
+        else if (id == R.id.add_SG) {
+            LayoutInflater factory = LayoutInflater.from(this);
+            final View textEntryView = factory.inflate(R.layout.create_sg, null);
+            final EditText newsgName = (EditText) textEntryView.findViewById(R.id.createSGName);
+            final EditText newsgDescription = (EditText)textEntryView.findViewById(R.id.createSGDescription);
+            AlertDialog.Builder builderSecurityGroup = new AlertDialog.Builder(this);
+            builderSecurityGroup.setTitle("Create Security Group");
+            builderSecurityGroup.setIcon(R.drawable.nectar_app_icon);
+            //builderSecurityGroup.setIcon(android.R.drawable.ic_dialog_info);
+            builderSecurityGroup.setView(textEntryView);
+            builderSecurityGroup.setPositiveButton("Create", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String name = newsgName.getText().toString();
+                            String description = newsgDescription.getText().toString();
+                            dialog.dismiss();
+                            mOverlayDialog.show();
+                            HttpRequestController.getInstance(getApplicationContext()).createSecurityGroup(new HttpRequestController.VolleyCallback() {
+                                @Override
+                                public void onSuccess(String result) {
+                                    if(result.equals("success")) {
+                                        mOverlayDialog.dismiss();
+                                        System.out.println("How many time of creation?");
+                                        Toast.makeText(getApplicationContext(), "Create Security Group successfully", Toast.LENGTH_SHORT).show();
 
+                                        AccessAndSecurityFragment accessAndSecurityFragment = new AccessAndSecurityFragment();
+                                        manager.beginTransaction().replace(R.id.relativelayout_for_fragment, accessAndSecurityFragment, accessAndSecurityFragment.getTag()).commit();
+
+
+
+                                    } else{
+                                        mOverlayDialog.dismiss();
+                                        Toast.makeText(getApplicationContext(), "Fail to create Security Group", Toast.LENGTH_SHORT).show();
+                                        AccessAndSecurityFragment accessAndSecurityFragment = new AccessAndSecurityFragment();
+                                        manager.beginTransaction().replace(R.id.relativelayout_for_fragment, accessAndSecurityFragment, accessAndSecurityFragment.getTag()).commit();
+
+                                    }
+                                }
+                            }, name,description);
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            AlertDialog alertDialog = builderSecurityGroup.create();
+            alertDialog.show();
+
+            return true;
+        } else if (id == R.id.add_KP) {
+            final java.util.Timer timer = new java.util.Timer(true);
+            final EditText input = new EditText(this);
+            final AlertDialog.Builder builderSnapshot = new AlertDialog.Builder(this);
+            builderSnapshot.setMessage("Please enter the name of new Key Pair:").setView(input)
+                    .setPositiveButton("Create", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                                String name=input.getText().toString();
+                                dialog.dismiss();
+                                mOverlayDialog.show();
+                                HttpRequestController.getInstance(getApplicationContext()).createKeyPair(new HttpRequestController.VolleyCallback() {
+                                    @Override
+                                    public void onSuccess(String result) {
+                                        if(result.equals("success")) {
+
+                                            Toast.makeText(getApplicationContext(), "Create new key pair successfully", Toast.LENGTH_SHORT).show();
+                                            TimerTask task = new TimerTask() {
+                                                @Override
+                                                public void run() {
+                                                    mOverlayDialog.dismiss();
+                                                    FragmentManager manager = getSupportFragmentManager();
+                                                    KeyPairFragment vFragment = new KeyPairFragment();
+                                                    manager.beginTransaction().replace(R.id.relativelayout_for_fragment, vFragment, vFragment.getTag()).commit();
+
+                                                }
+                                            };
+                                            /**
+                                             * Delay 7 secs after the button onclick method is called.
+                                             * Wait for server status update. The server status is not modified in real-time.
+                                             */
+                                            timer.schedule(task, 4000);
+
+
+                                        } else{
+                                            mOverlayDialog.dismiss();
+                                            Toast.makeText(getApplicationContext(), "Fail to create a new key pair", Toast.LENGTH_SHORT).show();
+                                            FragmentManager manager = getSupportFragmentManager();
+                                            KeyPairFragment vFragment = new KeyPairFragment();
+                                            manager.beginTransaction().replace(R.id.relativelayout_for_fragment, vFragment, vFragment.getTag()).commit();
+
+                                        }
+                                    }
+                                }, name);
+
+
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            AlertDialog alertDialog = builderSnapshot.create();
+            alertDialog.show();
+
+
+            return true;
+        } else if (id == R.id.import_KP) {
+            LayoutInflater factory2 = LayoutInflater.from(this);
+            final View textEntryView2 = factory2.inflate(R.layout.import_kp, null);
+            final EditText importkpName = (EditText) textEntryView2.findViewById(R.id.importKPName);
+            final EditText importkpPublicKey = (EditText)textEntryView2.findViewById(R.id.importKPPK);
+            AlertDialog.Builder builderImportKP = new AlertDialog.Builder(this);
+            builderImportKP.setTitle("Import Key Pair");
+            builderImportKP.setIcon(R.drawable.nectar_app_icon);
+            //builderSecurityGroup.setIcon(android.R.drawable.ic_dialog_info);
+            builderImportKP.setView(textEntryView2);
+            builderImportKP.setPositiveButton("Import", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String name = importkpName.getText().toString();
+                    String publicKey = importkpPublicKey.getText().toString();
+                    dialog.dismiss();
+                    mOverlayDialog.show();
+                    HttpRequestController.getInstance(getApplicationContext()).importKeyPair(new HttpRequestController.VolleyCallback() {
+                        @Override
+                        public void onSuccess(String result) {
+                            if(result.equals("success")) {
+                                mOverlayDialog.dismiss();
+                                Toast.makeText(getApplicationContext(), "Import Key Pair successfully", Toast.LENGTH_SHORT).show();
+
+                                KeyPairFragment kpFragment = new KeyPairFragment();
+                                manager.beginTransaction().replace(R.id.relativelayout_for_fragment, kpFragment, kpFragment.getTag()).commit();
+
+
+
+                            } else{
+                                mOverlayDialog.dismiss();
+                                Toast.makeText(getApplicationContext(), "Fail to import key pair", Toast.LENGTH_SHORT).show();
+                                KeyPairFragment kpFragment = new KeyPairFragment();
+                                manager.beginTransaction().replace(R.id.relativelayout_for_fragment, kpFragment, kpFragment.getTag()).commit();
+
+                            }
+                        }
+                    }, name,publicKey);
+                }
+            })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            AlertDialog alertDialog2 = builderImportKP.create();
+            alertDialog2.show();
+
+            return true;
+        }else if (id == R.id.add_rule_sg) {
+            SharedPreferences sharedPreferences =  getApplicationContext().getSharedPreferences("nectar_android", 0);
+            String securityGID=sharedPreferences.getString("chosenSecurityGroup", "Error Getting Security Group");
+            System.out.println("hahaha2: "+securityGID);
+            Bundle bundle = new Bundle();
+            bundle.putString("securityGroupId", securityGID);
+            FragmentTransaction ft = getSupportFragmentManager()
+                    .beginTransaction();
+            AddRuleSGFragment arFragment = new AddRuleSGFragment();
+            arFragment.setArguments(bundle);
+            ft.replace(R.id.relativelayout_for_fragment, arFragment, arFragment.getTag()).commit();
+
+            return true;
+        }else if (id == R.id.create_volume_sg) {
+            //Toast.makeText(getApplicationContext(), "Create Volume", Toast.LENGTH_SHORT).show();
+
+
+
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            CreateVolumeFragment cvFragment = new CreateVolumeFragment();
+
+            ft.replace(R.id.relativelayout_for_fragment, cvFragment, cvFragment.getTag()).commit();
+
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -155,12 +376,6 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_accessAndSecurity) {
             AccessAndSecurityFragment accessAndSecurityFragment = new AccessAndSecurityFragment();
             manager.beginTransaction().replace(R.id.relativelayout_for_fragment, accessAndSecurityFragment, accessAndSecurityFragment.getTag()).commit();
-        } else if (id == R.id.nav_networkTopology) {
-
-        } else if (id == R.id.nav_networks) {
-
-        } else if (id == R.id.nav_routers) {
-
         }else if (id == R.id.nav_about) {
             AboutFragment aboutFragment = new AboutFragment();
             manager.beginTransaction().replace(R.id.relativelayout_for_fragment, aboutFragment, aboutFragment.getTag()).commit();
@@ -234,4 +449,6 @@ public class MainActivity extends AppCompatActivity
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
     }
+
+
 }

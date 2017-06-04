@@ -23,21 +23,6 @@
         </menu>
     </item>
 
-    <item android:title="Network">
-        <menu>
-            <group android:checkableBehavior="single">
-                <item
-                    android:id="@+id/nav_networkTopology"
-                    android:title="NetworkTopology" />
-                <item
-                    android:id="@+id/nav_networks"
-                    android:title="Networks" />
-                <item
-                    android:id="@+id/nav_routers"
-                    android:title="Routers" />
-            </group>
-        </menu>
-    </item>
     <item android:title="Account">
         <menu>
             <group android:checkableBehavior="single">

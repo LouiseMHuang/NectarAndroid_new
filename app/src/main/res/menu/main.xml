@@ -1,9 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/launch_instance"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:title="Launch Instance"
+        app:showAsAction="never"
+       ></item>
+    <item
+        android:id="@+id/add_SG"
+        android:orderInCategory="100"
+        android:title="Create Security Group"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/add_KP"
+        android:orderInCategory="100"
+        android:title="Create Key Pair"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/import_KP"
+        android:orderInCategory="100"
+        android:title="import Key Pair"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/add_rule_sg"
+        android:orderInCategory="100"
+        android:title="Add Rule"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/create_volume_sg"
+        android:orderInCategory="100"
+        android:title="Create Volume"
         app:showAsAction="never" />
 </menu>

@@ -1,17 +1,29 @@
 package com.jianqingc.nectar.fragment;
 
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
+import java.util.*;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-
+import android.view.Menu;
+import android.view.MenuItem;
+import android.support.v7.app.AppCompatActivity;
 import com.amigold.fundapter.BindDictionary;
 import com.amigold.fundapter.FunDapter;
 import com.amigold.fundapter.extractors.StringExtractor;
@@ -20,6 +32,7 @@ import com.jianqingc.nectar.controller.HttpRequestController;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -41,8 +54,20 @@ public class InstanceFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         myView = inflater.inflate(R.layout.fragment_instance, container, false);
+        setHasOptionsMenu(true);
+
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        toolbar.setTitle("Instances");
+
+        /**
+         * set spinner which is actually a dialog
+         */
+        final Dialog mOverlayDialog = new Dialog(getActivity(), android.R.style.Theme_Panel); //display an invisible overlay dialog to prevent user interaction and pressing back
+        mOverlayDialog.setCancelable(false);
+        mOverlayDialog.setContentView(R.layout.loading_dialog);
+        mOverlayDialog.show();
         // Inflate the layout for this fragment
-        HttpRequestController.getInstance(getContext()).listInstance( new HttpRequestController.VolleyCallback() {
+        HttpRequestController.getInstance(getContext()).listInstance(new HttpRequestController.VolleyCallback() {
             @Override
             public void onSuccess(String result) {
                 try {
@@ -50,6 +75,7 @@ public class InstanceFragment extends Fragment {
                      * Display instance Info with the Listview and Fundapter
                      * You can also use simple ArrayAdapter to replace Fundatper.
                      */
+
                     instanceFragmentResultArray = new JSONArray(result);
                     ArrayList<String[]> instanceListArray = new ArrayList<String[]>();
                     for (int i = 0; i < instanceFragmentResultArray.length(); i++) {
@@ -94,7 +120,6 @@ public class InstanceFragment extends Fragment {
                     instanceLV.setAdapter(adapter);
 
 
-
                     AdapterView.OnItemClickListener onListClick = new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -104,7 +129,7 @@ public class InstanceFragment extends Fragment {
                             Bundle bundle = new Bundle();
                             try {
                                 String instanceId = instanceFragmentResultArray.getJSONObject(position).getString("instanceId");
-                                bundle.putString("instanceId",instanceId);
+                                bundle.putString("instanceId", instanceId);
                                 FragmentTransaction ft = getActivity().getSupportFragmentManager()
                                         .beginTransaction();
                                 InstanceDetailFragment instanceDetailFragment = new InstanceDetailFragment();
@@ -117,6 +142,8 @@ public class InstanceFragment extends Fragment {
                         }
                     };
                     instanceLV.setOnItemClickListener(onListClick);
+                    mOverlayDialog.dismiss();
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -124,7 +151,60 @@ public class InstanceFragment extends Fragment {
             }
         }, getActivity());
 
+
+
+
+        /**
+         * Set refresh/back button.
+         */
+        FloatingActionButton fabRight = (FloatingActionButton) getActivity().findViewById(R.id.fabRight);
+        fabRight.setVisibility(View.VISIBLE);
+        fabRight.setEnabled(true);
+        fabRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Snackbar.make(view, "Refreshing...", Snackbar.LENGTH_SHORT).show();
+                //mOverlayDialog.show();
+                //mOverlayDialog.dismiss();
+                //System.out.println("hihihih");
+                //reload this page
+                FragmentTransaction ft = getActivity().getSupportFragmentManager()
+                        .beginTransaction();
+                InstanceFragment instanceFragment = new InstanceFragment();
+                ft.replace(R.id.relativelayout_for_fragment, instanceFragment, instanceFragment.getTag()).commit();
+                //System.out.println("hihihiheeeee");
+
+            }
+        });
+
+
+        //System.out.println("dadadada");
         return myView;
+    }
+
+
+    @Override
+    public void onPause() {
+        /**
+         *  Remove refresh button when this fragment is hiden.
+         */
+        super.onPause();
+        FloatingActionButton fabRight = (FloatingActionButton) getActivity().findViewById(R.id.fabRight);
+        FloatingActionButton fabLeft = (FloatingActionButton) getActivity().findViewById(R.id.fabLeft);
+        fabRight.setVisibility(View.GONE);
+        fabRight.setEnabled(false);
+        fabLeft.setVisibility(View.GONE);
+        fabLeft.setEnabled(false);
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        toolbar.setTitle("Nectar Cloud");
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflate) {
+        // TODO Auto-generated method stub
+        //super.onCreateOptionsMenu(menu);
+        menu.findItem(R.id.launch_instance).setVisible(true);
     }
 
 }

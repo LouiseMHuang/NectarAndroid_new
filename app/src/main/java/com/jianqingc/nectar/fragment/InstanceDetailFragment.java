@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,10 +19,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import android.support.v7.app.AppCompatActivity;
 import com.jianqingc.nectar.R;
 import com.jianqingc.nectar.controller.HttpRequestController;
-
+import java.util.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.TimerTask;
@@ -36,8 +37,18 @@ public class InstanceDetailFragment extends Fragment {
     String zone ;
     String address ;
     String instanceStatus ;
+    String created;
+    String image;
+    String security;
+    String key;
+    String volume;
+
+
+    public static InstanceDetailFragment test=null;
+    public String testResult=null;
     public InstanceDetailFragment() {
         // Required empty public constructor
+        test=this;
     }
 
     /**
@@ -47,9 +58,9 @@ public class InstanceDetailFragment extends Fragment {
     public void enable(Button btn){
         btn.setEnabled(true);
         btn.setVisibility(View.VISIBLE);
-        btn.setBackgroundColor(Color.parseColor("#31319b"));
+        btn.setBackgroundColor(Color.parseColor("#ffcc00"));
         if (btn.getText().equals("DELETE")){
-            btn.setBackgroundColor(Color.parseColor("#990000"));
+            btn.setBackgroundColor(Color.parseColor("#FF4040"));
         }
         btn.setTextColor(Color.parseColor("#ffffff"));
     }
@@ -73,6 +84,9 @@ public class InstanceDetailFragment extends Fragment {
         myView = inflater.inflate(R.layout.fragment_instance_detail, container, false);
         Bundle bundle = getArguments();
         instanceId = bundle.getString("instanceId");
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        toolbar.setTitle("Instance Detail");
+
         final Button startBtn = (Button)myView.findViewById(R.id.startBtn);
         final Button stopBtn = (Button)myView.findViewById(R.id.stopBtn);
         final Button pauseBtn = (Button)myView.findViewById(R.id.pauseBtn);
@@ -83,12 +97,6 @@ public class InstanceDetailFragment extends Fragment {
         final Button rebootBtn = (Button)myView.findViewById(R.id.rebootBtn);
         final Button snapshotBtn = (Button)myView.findViewById(R.id.snapshotBtn);
         final java.util.Timer timer = new java.util.Timer(true);
-        HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
-            @Override
-            public void onSuccess(String result) {
-                setView(result);
-            }
-        }, getActivity().getApplicationContext(), instanceId);
 
         /**
          * set spinner which is actually a dialog
@@ -96,6 +104,19 @@ public class InstanceDetailFragment extends Fragment {
         final Dialog mOverlayDialog = new Dialog(getActivity(), android.R.style.Theme_Panel); //display an invisible overlay dialog to prevent user interaction and pressing back
         mOverlayDialog.setCancelable(false);
         mOverlayDialog.setContentView(R.layout.loading_dialog);
+        mOverlayDialog.show();
+        HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                setView(result);
+                //InstanceDetailFragment.test.testResult=result;
+                //System.out.println(result);
+                //System.out.println(test.testResult);
+                mOverlayDialog.dismiss();
+            }
+        }, getActivity().getApplicationContext(), instanceId);
+        System.out.println(testResult);
+
         /**
          * Set refresh/back button.
          */
@@ -113,7 +134,7 @@ public class InstanceDetailFragment extends Fragment {
                         mOverlayDialog.dismiss();
                     }
                 }, getActivity().getApplicationContext(), instanceId);
-                Snackbar.make(view, "Refreshing...", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(view, "Refreshing...", Snackbar.LENGTH_SHORT).show();
             }
         });
         FloatingActionButton fabLeft = (FloatingActionButton) getActivity().findViewById(R.id.fabLeft);
@@ -263,6 +284,7 @@ public class InstanceDetailFragment extends Fragment {
                                                         @Override
                                                         public void onSuccess(String result) {
                                                             setView(result);
+                                                            //System.out.println(test.testResult);
                                                             mOverlayDialog.dismiss();
                                                             Toast.makeText(getActivity().getApplicationContext(), "Stop Instance Succeed", Toast.LENGTH_SHORT).show();
                                                         }
@@ -545,7 +567,7 @@ public class InstanceDetailFragment extends Fragment {
                                              * Delay 7 secs after the button onclick method is called.
                                              * Wait for server status update. The server status is not modified in real-time.
                                              */
-                                            timer.schedule(task, 7000);
+                                            timer.schedule(task, 4000);
                                         } else{
                                             HttpRequestController.getInstance(getActivity().getApplicationContext()).listSingleInstance(new HttpRequestController.VolleyCallback() {
                                                 @Override
@@ -628,6 +650,7 @@ public class InstanceDetailFragment extends Fragment {
                 alertDialog.show();
             }
         });
+
         return myView;
     }
 
@@ -643,7 +666,13 @@ public class InstanceDetailFragment extends Fragment {
         fabRight.setEnabled(false);
         fabLeft.setVisibility(View.GONE);
         fabLeft.setEnabled(false);
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        toolbar.setTitle("Nectar Cloud");
     }
+
+
+
+
 
 
     public void setView(String result){
@@ -651,6 +680,8 @@ public class InstanceDetailFragment extends Fragment {
          * Set the textviews and buttons according to the instance status.
          */
 
+        final TextView instanceImageNameTV = (TextView)myView.findViewById(R.id.instanceImageNameTV);
+        final TextView instanceVolumeTV = (TextView)myView.findViewById(R.id.instanceVolumeTV);
         try {
             JSONObject JSONResult = new JSONObject(result);
             instanceId = JSONResult.getString("id");
@@ -658,14 +689,66 @@ public class InstanceDetailFragment extends Fragment {
             zone = JSONResult.getString("zone");
             address = JSONResult.getString("address");
             instanceStatus = JSONResult.getString("status");
+            created=JSONResult.getString("created");
+            security=JSONResult.getString("securityg");
+            key=JSONResult.getString("key");
+            String imageID=JSONResult.getString("image");
+            HttpRequestController.getInstance(getActivity().getApplicationContext()).showImageDetail(new HttpRequestController.VolleyCallback() {
+                @Override
+                public void onSuccess(String result) {
+                    try{
+                        JSONObject imageO = new JSONObject(result);
+                        image=imageO.getString("imageName");
+                        instanceImageNameTV.setText(image);
+                    }catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, getActivity().getApplicationContext(), imageID);
+
+            int vNum=JSONResult.getInt("volNum");
+            volume="";
+
+            if(vNum==0){
+                volume="None";
+            }else{
+                for(int i=0; i<vNum;i++){
+                    String vID=JSONResult.getString("volume"+i);
+                    HttpRequestController.getInstance(getActivity().getApplicationContext()).showVolumeDetail(new HttpRequestController.VolleyCallback() {
+                        @Override
+                        public void onSuccess(String result) {
+                            try{
+                                JSONObject volumeO = new JSONObject(result);
+                                String vname=volumeO.getString("vName");
+                                //vList.add(vname);
+                                String former=instanceVolumeTV.getText().toString();
+                                instanceVolumeTV.setText(former+" "+vname);
+                            }catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, getActivity().getApplicationContext(), vID);
+
+                }
+
+            }
+
+
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         TextView instanceIdTV = (TextView)myView.findViewById(R.id.instanceIdTV);
         TextView instanceNameTV= (TextView)myView.findViewById(R.id.instanceNameTV);
         TextView instanceZoneTV = (TextView)myView.findViewById(R.id.instanceZoneTV);
         TextView instanceIPAddressTV = (TextView)myView.findViewById(R.id.instanceIPAddressTV);
         TextView instanceStatusTV = (TextView)myView.findViewById(R.id.instanceStatusTV);
+        TextView instanceCreateTimeTV = (TextView)myView.findViewById(R.id.instanceCreateTimeTV);
+
+        TextView instanceSecurityTV = (TextView)myView.findViewById(R.id.instanceSecurityTV);
+        TextView instanceKeyPairTV = (TextView)myView.findViewById(R.id.instanceKeyPairTV);
+
         Button startBtn = (Button)myView.findViewById(R.id.startBtn);
         Button stopBtn = (Button)myView.findViewById(R.id.stopBtn);
         Button pauseBtn = (Button)myView.findViewById(R.id.pauseBtn);
@@ -680,6 +763,19 @@ public class InstanceDetailFragment extends Fragment {
         instanceZoneTV.setText(zone);
         instanceIPAddressTV.setText(address);
         instanceStatusTV.setText(instanceStatus);
+        instanceCreateTimeTV.setText(created);
+        instanceImageNameTV.setText(image);
+        instanceSecurityTV.setText(security);
+        instanceKeyPairTV.setText(key);
+        instanceVolumeTV.setText(volume);
+
+
+
+        //String created;
+        //String image;
+        //String security;
+        //String key;
+        //String volume;
         /**
          * set status text color
          */

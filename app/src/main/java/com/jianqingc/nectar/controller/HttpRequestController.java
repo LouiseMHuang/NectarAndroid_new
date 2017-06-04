@@ -5,7 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
-
+import java.util.ArrayList;
+import java.util.List;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -133,9 +134,18 @@ public class HttpRequestController {
                 if (error.networkResponse.statusCode == 401) {
                     Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
                     Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    /**
+                     * Enable auto-login function
+                     */
+                    editor.putBoolean("isSignedOut", true);
+                    editor.apply();
                     context.startActivity(i);
+                    System.out.println("haha");
+                }else{
+                    Toast.makeText(mApplicationContext, "Listing limits Failed", Toast.LENGTH_SHORT).show();
                 }
-                Toast.makeText(mApplicationContext, "Listing limits Failed", Toast.LENGTH_SHORT).show();
+
 
             }
         }) {
@@ -163,6 +173,9 @@ public class HttpRequestController {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
         String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
         String fullURL = computeServiceURL + "/servers/detail";
+        System.out.println("hahaha");
+        System.out.println(sharedPreferences.getString("networkServiceURL", "Error Getting Compute URL"));
+        //System.out.println(sharedPreferences.getString("tenantId", "Error Getting Compute URL"));
         final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
         StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
                 new Response.Listener<String>() {
@@ -197,6 +210,623 @@ public class HttpRequestController {
     }
 
     /**
+     * List flavor Http Request showing the available flavors
+     * @param callback
+     * @param context
+     */
+
+    public void listFlavor(final VolleyCallback callback, final Context context) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/flavors";
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONArray resultArray;
+                        resultArray = ResponseParser.getInstance(mApplicationContext).listFlavor(response);
+                        String result = resultArray.toString();
+                        callback.onSuccess(result);
+                        // Display the first 500 characters of the response string.
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse.statusCode == 401) {
+                    Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                    context.startActivity(i);
+                } else {
+                    Toast.makeText(mApplicationContext, "Getting flavor Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                return headers;
+            }
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+    /**
+     * List key pair Http Request showing the available key pairs
+     * @param callback
+     * @param context
+     */
+    public void listKeyPair(final VolleyCallback callback, final Context context) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
+        System.out.println(computeServiceURL);
+        String fullURL = computeServiceURL + "/os-keypairs";
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        System.out.println(token);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONArray resultArray;
+                        resultArray = ResponseParser.getInstance(mApplicationContext).listKeyPair(response);
+                        String result = resultArray.toString();
+                        callback.onSuccess(result);
+                        // Display the first 500 characters of the response string.
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse.statusCode == 401) {
+                    Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                    context.startActivity(i);
+                } else {
+                    Toast.makeText(mApplicationContext, "Getting key pairs Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                return headers;
+            }
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+
+    /**
+     * List rules for the specific security group the user clicks in the AccessAndSecurityFragment listview
+     * @param callback
+     * @param context
+     * @param kpName
+     */
+    public void showKeyPairDetail(final VolleyCallback callback, final Context context, String kpName) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/os-keypairs/" + kpName;
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        JSONObject resultObject;
+                        resultObject = ResponseParser.getInstance(mApplicationContext).listkeypairDetail(response);
+                        String result = resultObject.toString();
+                        callback.onSuccess(result);
+
+
+                        // Display the first 500 characters of the response string.
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse.statusCode == 401) {
+                    Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                    context.startActivity(i);
+                }
+                Toast.makeText(mApplicationContext, "Getting the details of this key pair Failed", Toast.LENGTH_SHORT).show();
+                callback.onSuccess("error");
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                return headers;
+            }
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+
+    /**
+     *  Delete key pair
+     * @param callback
+     * @param kpName
+     */
+    public void deleteKeyPair(final VolleyCallback callback, String kpName) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/os-keypairs/" + kpName;
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+
+        StringRequest stringRequest = new StringRequest(Request.Method.DELETE, fullURL,
+                new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(String response){
+
+                                callback.onSuccess("success");
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    Toast.makeText(mApplicationContext, "Delete  successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Delete Key pair failed", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+
+    /**
+     * List availability zone Http Request showing the availability zones
+     * @param callback
+     * @param context
+     */
+    public void listAvailabilityZone(final VolleyCallback callback, final Context context) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/os-availability-zone";
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONArray resultArray;
+                        resultArray = ResponseParser.getInstance(mApplicationContext).listAvabilityZone(response);
+                        String result = resultArray.toString();
+                        callback.onSuccess(result);
+                        // Display the first 500 characters of the response string.
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse.statusCode == 401) {
+                    Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                    context.startActivity(i);
+                } else {
+                    Toast.makeText(mApplicationContext, "Getting avability zones Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                return headers;
+            }
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+    /**
+     * List security group Http Request showing the available security groups
+     * @param callback
+     * @param context
+     */
+    public void listSecurityGroup(final VolleyCallback callback, final Context context) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String networkServiceURL = sharedPreferences.getString("networkServiceURL", "Error Getting Compute URL");
+        System.out.println(networkServiceURL);
+        String fullURL = networkServiceURL + "/v2.0/security-groups";
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONArray resultArray;
+                        resultArray = ResponseParser.getInstance(mApplicationContext).listSecurityGroup(response);
+                        String result = resultArray.toString();
+                        callback.onSuccess(result);
+                        // Display the first 500 characters of the response string.
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse.statusCode == 401) {
+                    Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                    context.startActivity(i);
+                } else {
+                    Toast.makeText(mApplicationContext, "Getting security groups Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                return headers;
+            }
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+
+    /**
+     *  Delete security group
+     * @param callback
+     * @param sgID
+     */
+    public void deleteSecurityGroup(final VolleyCallback callback, String sgID) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("networkServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/v2.0/security-groups/" + sgID;
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+
+        StringRequest stringRequest = new StringRequest(Request.Method.DELETE, fullURL,
+                new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(String response){
+
+                        callback.onSuccess("success");
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    //Toast.makeText(mApplicationContext, "Delete  successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Delete failed", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+
+    /**
+     * List rules for the specific security group the user clicks in the AccessAndSecurityFragment listview
+     * @param callback
+     * @param context
+     * @param sgId
+     */
+    public void listManageRuleSG(final VolleyCallback callback, final Context context, String sgId) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("networkServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/v2.0/security-groups/" + sgId;
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                            JSONArray resultArray;
+                            resultArray = ResponseParser.getInstance(mApplicationContext).listRulesSG(response);
+                            String result = resultArray.toString();
+                            callback.onSuccess(result);
+
+
+                        // Display the first 500 characters of the response string.
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse.statusCode == 401) {
+                    Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                    context.startActivity(i);
+                }
+                Toast.makeText(mApplicationContext, "Getting Rules Failed", Toast.LENGTH_SHORT).show();
+                callback.onSuccess("error");
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                return headers;
+            }
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+
+    /**
+     *  Delete a rule
+     * @param callback
+     * @param ruleID
+     */
+    public void deleteRuleSG(final VolleyCallback callback, String ruleID) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("networkServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/v2.0/security-group-rules/" + ruleID;
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+
+        StringRequest stringRequest = new StringRequest(Request.Method.DELETE, fullURL,
+                new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(String response){
+
+                        callback.onSuccess("success");
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    Toast.makeText(mApplicationContext, "Delete  successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Delete failed", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+
+    /**
+     * List image Http Request showing the available images of current project
+     * @param callback
+     * @param context
+     */
+
+    public void listImageProject(final VolleyCallback callback, final Context context) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String imageServiceURL = sharedPreferences.getString("imageServiceURL", "Error Getting Compute URL");
+        String tenant=sharedPreferences.getString("tenantId", "Error Getting Compute URL");
+        String fullURL = imageServiceURL + "/v2/images?owner="+tenant;
+
+        System.out.println(fullURL);
+        //System.out.println(sharedPreferences.getString("tenantId", "Error Getting Compute URL"));
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONArray resultArray;
+                        resultArray = ResponseParser.getInstance(mApplicationContext).listImage(response);
+                        String result = resultArray.toString();
+                        callback.onSuccess(result);
+                        // Display the first 500 characters of the response string.
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse.statusCode == 401) {
+                    Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                    context.startActivity(i);
+                } else {
+                    Toast.makeText(mApplicationContext, "Getting images Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                return headers;
+            }
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+    /**
+     * List image Http Request showing the available images of NECTAR Official
+     * @param callback
+     * @param context
+     */
+
+    public void listImageOfficial(final VolleyCallback callback, final Context context) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String imageServiceURL = sharedPreferences.getString("imageServiceURL", "Error Getting Compute URL");
+        String owner="28eadf5ad64b42a4929b2fb7df99275c";
+        String fullURL = imageServiceURL + "/v2/images?owner="+owner;
+
+        //System.out.println(sharedPreferences.getString("imageServiceURL", "Error Getting Compute URL"));
+        //System.out.println(sharedPreferences.getString("tenantId", "Error Getting Compute URL"));
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONArray resultArray;
+                        resultArray = ResponseParser.getInstance(mApplicationContext).listImageOfficial(response);
+                        String result = resultArray.toString();
+                        callback.onSuccess(result);
+                        // Display the first 500 characters of the response string.
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse.statusCode == 401) {
+                    Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                    context.startActivity(i);
+                } else {
+                    Toast.makeText(mApplicationContext, "Getting images Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                return headers;
+            }
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+    /**
+     * Get the detailed info of a specific image
+     * @param callback
+     * @param context
+     * @param id
+     */
+
+    public void showImageDetail(final VolleyCallback callback, final Context context, String id) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String imageServiceURL = sharedPreferences.getString("imageServiceURL", "Error Getting Compute URL");
+        String fullURL = imageServiceURL + "/v2/images/"+id;
+
+        //System.out.println(sharedPreferences.getString("imageServiceURL", "Error Getting Compute URL"));
+        //System.out.println(sharedPreferences.getString("tenantId", "Error Getting Compute URL"));
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONObject resultObject;
+                        resultObject = ResponseParser.getInstance(mApplicationContext).listImageDetail(response);
+                        String result = resultObject.toString();
+                        callback.onSuccess(result);
+                        // Display the first 500 characters of the response string.
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse.statusCode == 401) {
+                    Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                    context.startActivity(i);
+                } else {
+                    Toast.makeText(mApplicationContext, "Getting image detail Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                return headers;
+            }
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+
+    /**
+     *  Delete image
+     * @param callback
+     * @param imageID
+     */
+    public void deleteImage(final VolleyCallback callback, String imageID) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("imageServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/v2/images/" + imageID;
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+
+        StringRequest stringRequest = new StringRequest(Request.Method.DELETE, fullURL,
+                new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(String response){
+
+                        callback.onSuccess("success");
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    Toast.makeText(mApplicationContext, "Delete  successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Delete image failed", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+
+
+    /**
      * List Instance Detail for the specific instance the user clicks in the InstanceFragment listview
      * @param callback
      * @param context
@@ -223,11 +853,44 @@ public class HttpRequestController {
                             String address = resp.getJSONObject("server").getString("accessIPv4");
                             String name = resp.getJSONObject("server").getString("name");
                             String status = resp.getJSONObject("server").getString("status");
+                            String created = resp.getJSONObject("server").getString("created");
+                            String image = resp.getJSONObject("server").getJSONObject("image").getString("id");
+                            String key = resp.getJSONObject("server").getString("key_name");
+                            if(key.equals("null")){
+                                key="None";
+                            }
+                            JSONArray sgArray=resp.getJSONObject("server").getJSONArray("security_groups");
+                            String sg="";
+                            if(sgArray.length()==0){
+                                sg="None";
+                            }else{
+                                for(int i=0;i<sgArray.length();i++){
+                                    JSONObject sgObject= (JSONObject) sgArray.get(i);
+                                    if(i==0){
+                                        sg=sgObject.getString("name");
+                                    }else{
+                                        sg=sg+", "+sgObject.getString("name");
+                                    }
+                                }
+                            }
+
+                            JSONArray vArray=resp.getJSONObject("server").getJSONArray("os-extended-volumes:volumes_attached");
+                            int vNum=vArray.length();
+                            for(int j=0;j<vNum;j++){
+                                JSONObject vObject= (JSONObject) vArray.get(j);
+                                String volume=vObject.getString("id");
+                                result.put("volume"+j, volume);
+                            }
                             result.put("id", id);
                             result.put("zone", zone);
                             result.put("address", address);
                             result.put("name", name);
                             result.put("status", status);
+                            result.put("created", created);
+                            result.put("image", image);
+                            result.put("key", key);
+                            result.put("securityg", sg);
+                            result.put("volNum", vNum);
                             String stringResult = result.toString();
                             callback.onSuccess(stringResult);
                         } catch (JSONException e) {
@@ -258,14 +921,105 @@ public class HttpRequestController {
     }
 
     /**
+     * List available volume type
+     * @param callback
+     * @param context
+     */
+    public void listVolumeType(final VolleyCallback callback, final Context context) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String tenant=sharedPreferences.getString("tenantId", "Error Getting Compute URL");
+        String volumeV3ServiceURL = "https://cinder.rc.nectar.org.au:8776/v3/"+tenant;
+        String fullURL = volumeV3ServiceURL +"/types";
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        System.out.println(token);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONArray resultArray;
+                        resultArray = ResponseParser.getInstance(mApplicationContext).listVolumeType(response);
+                        String result = resultArray.toString();
+                        callback.onSuccess(result);
+                        // Display the first 500 characters of the response string.
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse.statusCode == 401) {
+                    Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                    context.startActivity(i);
+                }
+                Toast.makeText(mApplicationContext, "Listing Volumes Types Failed", Toast.LENGTH_SHORT).show();
+
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                return headers;
+            }
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+
+    /**
+     * List Volume Snapshot Http Request
+     * @param callback
+     * @param context
+     */
+    public void listVolumeSnapshot(final VolleyCallback callback, final Context context) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String tenant=sharedPreferences.getString("tenantId", "Error Getting Compute URL");
+        String volumeV3ServiceURL = "https://cinder.rc.nectar.org.au:8776/v3/"+tenant;
+        String fullURL = volumeV3ServiceURL +"/snapshots/detail";
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONArray resultArray;
+                        resultArray = ResponseParser.getInstance(mApplicationContext).listSnapshot(response);
+                        String result = resultArray.toString();
+                        callback.onSuccess(result);
+                        // Display the first 500 characters of the response string.
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse.statusCode == 401) {
+                    Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                    context.startActivity(i);
+                }
+                Toast.makeText(mApplicationContext, "Listing Snapshots Failed", Toast.LENGTH_SHORT).show();
+
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                return headers;
+            }
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+
+
+    /**
      * List Volume Http Request
      * @param callback
      * @param context
      */
     public void listVolume(final VolleyCallback callback, final Context context) {
         sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
-        String volumeV2ServiceURL = sharedPreferences.getString("volumeV2ServiceURL", "Error Getting volumeV2ServiceURL");
-        String fullURL = volumeV2ServiceURL + "/volumes/detail";
+        String tenant=sharedPreferences.getString("tenantId", "Error Getting Compute URL");
+        String volumeV3ServiceURL = "https://cinder.rc.nectar.org.au:8776/v3/"+tenant;
+        String fullURL = volumeV3ServiceURL +"/volumes/detail";
         final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
         StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
                 new Response.Listener<String>() {
@@ -298,6 +1052,106 @@ public class HttpRequestController {
         };
         NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
     }
+
+
+
+    /**
+     * Get the detailed info of a specific volume snapshot
+     * @param callback
+     * @param context
+     * @param snapshotid
+     */
+
+    public void showVolumeSnapshotDetail(final VolleyCallback callback, final Context context, String snapshotid) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String tenant=sharedPreferences.getString("tenantId", "Error Getting Compute URL");
+        String volumeV3ServiceURL = "https://cinder.rc.nectar.org.au:8776/v3/"+tenant;
+        String fullURL = volumeV3ServiceURL +"/snapshots/"+snapshotid;
+
+        //System.out.println(sharedPreferences.getString("imageServiceURL", "Error Getting Compute URL"));
+        //System.out.println(sharedPreferences.getString("tenantId", "Error Getting Compute URL"));
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONObject resultObject;
+                        resultObject = ResponseParser.getInstance(mApplicationContext).listVolumeSnapshotDetail(response);
+                        String result = resultObject.toString();
+                        callback.onSuccess(result);
+                        // Display the first 500 characters of the response string.
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse.statusCode == 401) {
+                    Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                    context.startActivity(i);
+                } else {
+                    Toast.makeText(mApplicationContext, "Getting snapshot detail Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                return headers;
+            }
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+
+    /**
+     * Get the detailed info of a specific volume
+     * @param callback
+     * @param context
+     * @param volumeid
+     */
+
+    public void showVolumeDetail(final VolleyCallback callback, final Context context, String volumeid) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String tenant=sharedPreferences.getString("tenantId", "Error Getting Compute URL");
+        String volumeV3ServiceURL = "https://cinder.rc.nectar.org.au:8776/v3/"+tenant;
+        String fullURL = volumeV3ServiceURL +"/volumes/"+volumeid;
+
+        //System.out.println(sharedPreferences.getString("imageServiceURL", "Error Getting Compute URL"));
+        //System.out.println(sharedPreferences.getString("tenantId", "Error Getting Compute URL"));
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, fullURL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        JSONObject resultObject;
+                        resultObject = ResponseParser.getInstance(mApplicationContext).listVolumeDetail(response);
+                        String result = resultObject.toString();
+                        callback.onSuccess(result);
+                        // Display the first 500 characters of the response string.
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse.statusCode == 401) {
+                    Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                    context.startActivity(i);
+                } else {
+                    Toast.makeText(mApplicationContext, "Getting image detail Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                return headers;
+            }
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
 
     /**
      * Server action: Pause Http Request
@@ -754,6 +1608,7 @@ public class HttpRequestController {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error.networkResponse == null) {
+
                     callback.onSuccess("success");
                 } else{
                     if (error.networkResponse.statusCode == 401){
@@ -779,4 +1634,961 @@ public class HttpRequestController {
         };
         NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
     }
+
+    /**
+     *  Luanch a new server
+     * @param callback
+     * @param name
+     * @param flavor
+     * @param image
+     * @param kp
+     * @param az
+     * @param sg
+     */
+    public void launchServer(final VolleyCallback callback, String name, String flavor, String image,String kp, String az, List<String> sg){
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/servers";
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        JSONArray sgArray=new JSONArray();;
+        if(sg.size()!=0){
+            for (int i=0; i<sg.size();i++){
+                JSONObject sgChoose= new JSONObject();
+                try{
+                    sgChoose.put("name", sg.get(i));
+                    sgArray.put(sgChoose);
+                }catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        JSONObject json1 = new JSONObject();
+        JSONObject json2 = new JSONObject();
+        try {
+            json2.put("name",name);
+            json2.put("imageRef",image);
+            json2.put("flavorRef",flavor);
+            if(az!="Select Availability Zone please"){
+                json2.put("availability_zone",az);
+            }
+            if(kp!="Select Key pair please"){
+                json2.put("key_name",kp);
+            }
+            if(sg.size()!=0){
+                json2.put("security_groups",sgArray);
+            }
+            json1.put("server",json2);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println(json1);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullURL, json1,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println("dedededededededddededed");
+                        callback.onSuccess("success");
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    System.out.println("dedededededededddededed");
+                    Toast.makeText(mApplicationContext, "Create instance successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Fail to create instance", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
+    }
+
+    /**
+     *  create a new security group
+     * @param callback
+     * @param name
+     * @param description
+     */
+    public void createSecurityGroup(final VolleyCallback callback, String name, String description){
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("networkServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/v2.0/security-groups";
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        JSONObject json1 = new JSONObject();
+        JSONObject json2 = new JSONObject();
+        try {
+            json2.put("name",name);
+            json2.put("description",description);
+            json1.put("security_group",json2);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println(json1);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullURL, json1,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println("dedededededededddededed");
+                        callback.onSuccess("success");
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    System.out.println("dedededededededddededed2");
+                    //Toast.makeText(mApplicationContext, "Create successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Fail to create", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
+    }
+
+    /**
+     *  edit an existing security group
+     * @param callback
+     * @param sgid
+     * @param name
+     * @param description
+     */
+    public void editSecurityGroup(final VolleyCallback callback, String sgid,String name, String description){
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("networkServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/v2.0/security-groups/"+sgid;
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        JSONObject json1 = new JSONObject();
+        JSONObject json2 = new JSONObject();
+        try {
+            json2.put("name",name);
+            json2.put("description",description);
+            json1.put("security_group",json2);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println(json1);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.PUT, fullURL, json1,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println("dedededededededddededed");
+                        callback.onSuccess("success");
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    System.out.println("dedededededededddededed");
+                    Toast.makeText(mApplicationContext, "Create successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Fail to create", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
+    }
+
+    /**
+     *  import a key pair with a public key
+     * @param callback
+     * @param name
+     * @param publicKey
+     */
+    public void importKeyPair(final VolleyCallback callback, String name, String publicKey){
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/os-keypairs";
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        JSONObject json1 = new JSONObject();
+        JSONObject json2 = new JSONObject();
+        try {
+            json2.put("name",name);
+            json2.put("public_key",publicKey);
+            json1.put("keypair",json2);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println(json1);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullURL, json1,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //System.out.println("dedededededededddededed");
+                        callback.onSuccess("success");
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    System.out.println("dedededededededddededed");
+                    Toast.makeText(mApplicationContext, "Import successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Fail to import", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
+    }
+
+
+    /**
+     *  Create a new key pair
+     * @param callback
+     * @param name
+     */
+    public void createKeyPair(final VolleyCallback callback, String name){
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/os-keypairs";
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        JSONObject json1 = new JSONObject();
+        JSONObject json2 = new JSONObject();
+        try {
+            json2.put("name",name);
+            json1.put("keypair",json2);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println(json1);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullURL, json1,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //System.out.println("dedededededededddededed");
+                        callback.onSuccess("success");
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    System.out.println("dedededededededddededed");
+                    Toast.makeText(mApplicationContext, "Create successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Fail to create", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
+    }
+
+    /**
+     *  Luanch a new server
+     * @param callback
+     * @param sgID
+     * @param protocol
+     * @param dir
+     * @param minPort
+     * @param maxPort
+     * @param cidr
+     * @param ethertype
+     */
+    public void addNewRule(final VolleyCallback callback, String sgID, String protocol, String dir,String minPort, String maxPort,String cidr,String ethertype){
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("networkServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/v2.0/security-group-rules";
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        System.out.println(fullURL);
+        JSONObject json1 = new JSONObject();
+        JSONObject json2 = new JSONObject();
+        try {
+            json2.put("security_group_id",sgID);
+            json2.put("protocol",protocol);
+            json2.put("direction",dir);
+            json2.put("port_range_min",minPort);
+            json2.put("port_range_max",maxPort);
+            json2.put("remote_ip_prefix",cidr);
+            json2.put("ethertype",ethertype);
+
+            json1.put("security_group_rule",json2);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println(json1.toString());
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullURL, json1,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println("dedededededededddededed");
+                        callback.onSuccess("success");
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    System.out.println("dedededededededddededed");
+                    Toast.makeText(mApplicationContext, "Add successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Fail to add", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
+    }
+
+
+    /**
+     *  attach a volume to a instance
+     * @param callback
+     * @param instanceID
+     * @param mountpoint
+     * @param volumeid
+     */
+    public void attachVolume(final VolleyCallback callback, String instanceID, String mountpoint,String volumeid){
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/servers/" + instanceID+"/os-volume_attachments";
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        JSONObject json1 = new JSONObject();
+        JSONObject json2 = new JSONObject();
+        try {
+            json2.put("volumeId",volumeid);
+            json2.put("device",mountpoint);
+            json1.put("volumeAttachment",json2);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println(json1.toString());
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullURL, json1,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //System.out.println("dedededededededddededed");
+                        callback.onSuccess("success");
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    System.out.println("dedededededededddededed");
+                    //Toast.makeText(mApplicationContext, "Attach successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Fail to attach", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
+    }
+
+
+    /**
+     *  attach a volume to a instance
+     * @param callback
+     * @param attachID
+     * @param serverid
+     */
+    public void detachVolume(final VolleyCallback callback, String attachID,String serverid){
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String computeServiceURL = sharedPreferences.getString("computeServiceURL", "Error Getting Compute URL");
+        String fullURL = computeServiceURL + "/servers/" + serverid+"/os-volume_attachments/"+attachID;
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+
+        //final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+
+        StringRequest stringRequest = new StringRequest(Request.Method.DELETE, fullURL,
+                new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(String response){
+
+                        callback.onSuccess("success");
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    Toast.makeText(mApplicationContext, "Detach  successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Detach failed", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+
+    /**
+     *  edit an existing volume
+     * @param callback
+     * @param name
+     * @param description
+     * @param volumeid
+     */
+    public void editVolume(final VolleyCallback callback, String name,String description, String volumeid){
+        String tenant=sharedPreferences.getString("tenantId", "Error Getting Compute URL");
+        String volumeV3ServiceURL = "https://cinder.rc.nectar.org.au:8776/v3/"+tenant;
+        String fullURL = volumeV3ServiceURL +"/volumes/"+volumeid;
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        JSONObject json1 = new JSONObject();
+        JSONObject json2 = new JSONObject();
+        try {
+            json2.put("name",name);
+            json2.put("description",description);
+            json1.put("volume",json2);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println(json1);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.PUT, fullURL, json1,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println("dedededededededddededed");
+                        callback.onSuccess("success");
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    System.out.println("dedededededededddededed");
+                    Toast.makeText(mApplicationContext, "Edit V successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Fail to edit V", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
+    }
+
+
+    /**
+     *  extend the size of a volume
+     * @param callback
+     * @param newSize
+     * @param volumeid
+     */
+    public void extendVolume(final VolleyCallback callback, int newSize,String volumeid){
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String tenant=sharedPreferences.getString("tenantId", "Error Getting Compute URL");
+        String volumeV3ServiceURL = "https://cinder.rc.nectar.org.au:8776/v3/"+tenant;
+        String fullURL = volumeV3ServiceURL +"/volumes/"+volumeid+"/action";
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        JSONObject json1 = new JSONObject();
+        JSONObject json2 = new JSONObject();
+        try {
+            json2.put("new_size",newSize);
+            json1.put("os-extend",json2);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println(json1.toString());
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullURL, json1,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //System.out.println("dedededededededddededed");
+                        callback.onSuccess("success");
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    System.out.println("dedededededededddededed");
+                    //Toast.makeText(mApplicationContext, "Extend V successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Fail to extend V", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
+    }
+
+
+    /**
+     *  Delete volume
+     * @param callback
+     * @param volumeID
+     */
+    public void deleteVolume(final VolleyCallback callback, String volumeID) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String tenant=sharedPreferences.getString("tenantId", "Error Getting Compute URL");
+        String volumeV3ServiceURL = "https://cinder.rc.nectar.org.au:8776/v3/"+tenant;
+        String fullURL = volumeV3ServiceURL +"/volumes/"+volumeID;
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+
+        StringRequest stringRequest = new StringRequest(Request.Method.DELETE, fullURL,
+                new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(String response){
+
+                        callback.onSuccess("success");
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    Toast.makeText(mApplicationContext, "Delete  successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Delete failed", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+    /**
+     *  create a snapshot based on an existing volume
+     * @param callback
+     * @param name
+     * @param description
+     * @param volumeid
+     */
+    public void createVolumeSnapshot(final VolleyCallback callback, String name,String description, String volumeid){
+        String tenant=sharedPreferences.getString("tenantId", "Error Getting Compute URL");
+        String volumeV3ServiceURL = "https://cinder.rc.nectar.org.au:8776/v3/"+tenant;
+        String fullURL = volumeV3ServiceURL +"/snapshots";
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        JSONObject json1 = new JSONObject();
+        JSONObject json2 = new JSONObject();
+        try {
+            json2.put("name",name);
+            json2.put("volume_id",volumeid);
+            json2.put("description",description);
+            json1.put("snapshot",json2);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println(json1);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullURL, json1,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println("dedededededededddededed");
+                        callback.onSuccess("success");
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    System.out.println("dedededededededddededed");
+                    Toast.makeText(mApplicationContext, "create snapshot successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Fail to create snapshot", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
+    }
+
+
+    /**
+     *  Luanch a new server
+     * @param callback
+     * @param name
+     * @param description
+     * @param size
+     * @param zone
+     * @param type
+     */
+    public void createVolume(final VolleyCallback callback, String name, String description, int size,String zone, String type){
+        String tenant=sharedPreferences.getString("tenantId", "Error Getting Compute URL");
+        String volumeV3ServiceURL = "https://cinder.rc.nectar.org.au:8776/v3/"+tenant;
+        String fullURL = volumeV3ServiceURL +"/volumes";
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        System.out.println(token);
+        JSONObject json1 = new JSONObject();
+        JSONObject json2 = new JSONObject();
+        try {
+            json2.put("size",size);
+            json2.put("availability_zone",zone);
+            json2.put("description",description);
+            json2.put("name",name);
+            json2.put("volume_type",type);
+            JSONObject json3 = new JSONObject();
+            json2.put("metadata",json3);
+            json2.put("consistencygroup_id",null);
+
+            json1.put("volume",json2);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println(json1.toString());
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, fullURL, json1,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println("dedededededededddededed");
+                        callback.onSuccess("success");
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    System.out.println("dedededededededddededed");
+                    Toast.makeText(mApplicationContext, "Create successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Fail to Create", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
+    }
+
+
+    /**
+     *  Delete volume snapshot
+     * @param callback
+     * @param snapshotID
+     */
+    public void deleteVolumeSnapshot(final VolleyCallback callback, String snapshotID) {
+        sharedPreferences = mApplicationContext.getSharedPreferences("nectar_android", 0);
+        String tenant=sharedPreferences.getString("tenantId", "Error Getting Compute URL");
+        String volumeV3ServiceURL = "https://cinder.rc.nectar.org.au:8776/v3/"+tenant;
+        String fullURL = volumeV3ServiceURL +"/snapshots/"+snapshotID;
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+
+        StringRequest stringRequest = new StringRequest(Request.Method.DELETE, fullURL,
+                new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(String response){
+
+                        callback.onSuccess("success");
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    Toast.makeText(mApplicationContext, "Delete  successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Delete failed", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(stringRequest);
+    }
+
+
+    /**
+     *  edit an existing volume snapshot
+     * @param callback
+     * @param name
+     * @param description
+     * @param volumeSnapshotid
+     */
+    public void editVolumeSnapshot(final VolleyCallback callback, String name,String description, String volumeSnapshotid){
+        String tenant=sharedPreferences.getString("tenantId", "Error Getting Compute URL");
+        String volumeV3ServiceURL = "https://cinder.rc.nectar.org.au:8776/v3/"+tenant;
+        String fullURL = volumeV3ServiceURL +"/snapshots/"+volumeSnapshotid;
+        final String token = sharedPreferences.getString("tokenId", "Error Getting Token");
+        JSONObject json1 = new JSONObject();
+        JSONObject json2 = new JSONObject();
+        try {
+            json2.put("name",name);
+            json2.put("description",description);
+            json1.put("snapshot",json2);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println(json1);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.PUT, fullURL, json1,
+                new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        System.out.println("dedededededededddededed");
+                        callback.onSuccess("success");
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error.networkResponse == null) {
+                    //System.out.println("dedededededededddededed");
+                    Toast.makeText(mApplicationContext, "Edit VS successfully", Toast.LENGTH_SHORT).show();
+                    callback.onSuccess("success");
+                } else{
+                    if (error.networkResponse.statusCode == 401){
+                        Toast.makeText(mApplicationContext, "Expired token. Please login again", Toast.LENGTH_SHORT).show();
+                        Intent i = new Intent(mApplicationContext, LoginActivity.class);
+                        mApplicationContext.startActivity(i);
+                    }else {
+                        Toast.makeText(mApplicationContext,"Fail to edit VS", Toast.LENGTH_SHORT).show();
+                        callback.onSuccess("error");
+                    }
+                }
+            }
+        }) {
+            @Override
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("X-Auth-Token", token);
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+
+        };
+        NetworkController.getInstance(mApplicationContext).addToRequestQueue(jsonObjectRequest);
+    }
+
+
+
+
 }

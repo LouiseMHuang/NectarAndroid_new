@@ -79,6 +79,7 @@ public class ResponseParser {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("expires",expires);
         editor.putString("tokenId", tokenId);
+        System.out.println(tokenId);
         editor.putString("tenantName", tenantName);
         editor.putString("tenantId",tenantId);
         editor.putString("tenantDescription", tenantDescription);
@@ -127,6 +128,255 @@ public class ResponseParser {
         return resultArray;
     }
 
+    public JSONArray listImage(String response){
+        JSONArray resultArray= new JSONArray();
+        try {
+            JSONObject responseJSON = new JSONObject(response);
+            JSONArray serverArray= responseJSON.getJSONArray("images");
+            for (int i=0;i<serverArray.length();i++){
+                JSONObject instanceObject = (JSONObject) serverArray.get(i);
+                JSONObject resultObject = new JSONObject();
+                resultObject.put("imageId", instanceObject.getString("id"));
+                resultObject.put("imageStatus", instanceObject.getString("status"));
+                resultObject.put("imageName", instanceObject.getString("name"));
+                resultObject.put("imageOwner", instanceObject.getString("owner"));
+                resultObject.put("imageVisibility", instanceObject.getString("visibility"));
+                resultObject.put("imageProtected", instanceObject.getString("protected"));
+                resultObject.put("imageChecksum", instanceObject.getString("checksum"));
+                resultObject.put("imageCreatedTime", instanceObject.getString("created_at"));
+                resultObject.put("imageUpdatedTime", instanceObject.getString("updated_at"));
+                resultObject.put("imageSize", instanceObject.getString("size"));
+                resultObject.put("imageDiskFormat", instanceObject.getString("disk_format"));
+                resultObject.put("imageContainerFormat", instanceObject.getString("container_format"));
+                resultObject.put("imageMinDisk", instanceObject.getString("min_disk"));
+                resultObject.put("imageType", instanceObject.getString("image_type"));
+                resultArray.put(i,resultObject);
+            }
+            return resultArray;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultArray;
+    }
+
+    public JSONArray listImageOfficial(String response){
+        JSONArray resultArray= new JSONArray();
+        try {
+            JSONObject responseJSON = new JSONObject(response);
+            JSONArray serverArray= responseJSON.getJSONArray("images");
+            for (int i=0;i<serverArray.length();i++){
+                JSONObject instanceObject = (JSONObject) serverArray.get(i);
+                JSONObject resultObject = new JSONObject();
+                resultObject.put("imageId", instanceObject.getString("id"));
+                resultObject.put("imageStatus", instanceObject.getString("status"));
+                resultObject.put("imageName", instanceObject.getString("name"));
+                resultObject.put("imageOwner", instanceObject.getString("owner"));
+                resultObject.put("imageVisibility", instanceObject.getString("visibility"));
+                resultObject.put("imageProtected", instanceObject.getString("protected"));
+                resultObject.put("imageChecksum", instanceObject.getString("checksum"));
+                resultObject.put("imageCreatedTime", instanceObject.getString("created_at"));
+                resultObject.put("imageUpdatedTime", instanceObject.getString("updated_at"));
+                resultObject.put("imageSize", instanceObject.getString("size"));
+                resultObject.put("imageDiskFormat", instanceObject.getString("disk_format"));
+                resultObject.put("imageContainerFormat", instanceObject.getString("container_format"));
+                resultObject.put("imageMinDisk", instanceObject.getString("min_disk"));
+                resultArray.put(i,resultObject);
+            }
+            return resultArray;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultArray;
+    }
+
+    public JSONObject listImageDetail(String response){
+        JSONObject resultObject = new JSONObject();
+        try {
+            JSONObject responseJSON = new JSONObject(response);
+
+                resultObject.put("imageId", responseJSON.getString("id"));
+                resultObject.put("imageStatus", responseJSON.getString("status"));
+                resultObject.put("imageName", responseJSON.getString("name"));
+                resultObject.put("imageOwner", responseJSON.getString("owner"));
+                resultObject.put("imageVisibility", responseJSON.getString("visibility"));
+                resultObject.put("imageProtected", responseJSON.getString("protected"));
+                resultObject.put("imageChecksum", responseJSON.getString("checksum"));
+                resultObject.put("imageCreatedTime", responseJSON.getString("created_at"));
+                resultObject.put("imageUpdatedTime", responseJSON.getString("updated_at"));
+                resultObject.put("imageSize", responseJSON.getString("size"));
+                resultObject.put("imageDiskFormat", responseJSON.getString("disk_format"));
+                resultObject.put("imageContainerFormat", responseJSON.getString("container_format"));
+                resultObject.put("imageMinDisk", responseJSON.getString("min_disk"));
+
+            return resultObject;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultObject;
+    }
+
+    public JSONArray listKeyPair(String response){
+        JSONArray resultArray= new JSONArray();
+        try {
+            JSONObject responseJSON = new JSONObject(response);
+            JSONArray serverArray= responseJSON.getJSONArray("keypairs");
+            for (int i=0;i<serverArray.length();i++){
+                JSONObject instanceObject = (JSONObject) serverArray.get(i);
+                JSONObject kpObject= instanceObject.getJSONObject("keypair");
+                JSONObject resultObject = new JSONObject();
+                resultObject.put("kpPublicKey", kpObject.getString("public_key"));
+                resultObject.put("kpName", kpObject.getString("name"));
+                resultObject.put("kpFingerPrint", kpObject.getString("fingerprint"));
+                resultArray.put(i,resultObject);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultArray;
+    }
+
+    public JSONObject listkeypairDetail(String response){
+        JSONObject resultObject = new JSONObject();
+        try {
+            JSONObject responseJSON = new JSONObject(response);
+            JSONObject keyPair = (JSONObject) responseJSON.getJSONObject("keypair");
+            resultObject.put("kpPublicKey", keyPair.getString("public_key"));
+            resultObject.put("kpName", keyPair.getString("name"));
+            resultObject.put("kpFingerPrint", keyPair.getString("fingerprint"));
+            resultObject.put("kpCreateTime", keyPair.getString("created_at"));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultObject;
+    }
+
+    public JSONArray listAvabilityZone(String response){
+        JSONArray resultArray= new JSONArray();
+        try {
+            JSONObject responseJSON = new JSONObject(response);
+            JSONArray serverArray= responseJSON.getJSONArray("availabilityZoneInfo");
+            for (int i=0;i<serverArray.length();i++){
+                JSONObject instanceObject = (JSONObject) serverArray.get(i);
+                JSONObject state= instanceObject.getJSONObject("zoneState");
+                JSONObject resultObject = new JSONObject();
+                resultObject.put("azHosts", instanceObject.getString("hosts"));
+                resultObject.put("azName", instanceObject.getString("zoneName"));
+                resultObject.put("azState", state.getBoolean("available"));
+                resultArray.put(i,resultObject);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultArray;
+    }
+
+    public JSONArray listFlavor(String response){
+        JSONArray resultArray= new JSONArray();
+        try {
+            JSONObject responseJSON = new JSONObject(response);
+            JSONArray flavorArray= responseJSON.getJSONArray("flavors");
+            for (int i=0;i<flavorArray.length();i++) {
+                JSONObject flavorObject = (JSONObject) flavorArray.get(i);
+                JSONObject resultObject = new JSONObject();
+                resultObject.put("flavorId", flavorObject.getString("id"));
+                resultObject.put("flavorName", flavorObject.getString("name"));
+                resultArray.put(i, resultObject);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultArray;
+    }
+
+    public JSONArray listSecurityGroup(String response){
+        JSONArray resultArray= new JSONArray();
+        try {
+            JSONObject responseJSON = new JSONObject(response);
+            JSONArray securityArray= responseJSON.getJSONArray("security_groups");
+            for (int i=0;i<securityArray.length();i++) {
+                JSONObject sgObject = (JSONObject) securityArray.get(i);
+                JSONObject resultObject = new JSONObject();
+                resultObject.put("sgId", sgObject.getString("id"));
+                resultObject.put("sgName", sgObject.getString("name"));
+                resultObject.put("sgDescription", sgObject.getString("description"));
+                resultObject.put("sgTenantID", sgObject.getString("tenant_id"));
+                resultArray.put(i, resultObject);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultArray;
+    }
+
+    public JSONArray listRulesSG(String response){
+        JSONArray resultArray= new JSONArray();
+        try {
+            JSONObject responseJSON = new JSONObject(response);
+            JSONObject securityGroup= responseJSON.getJSONObject("security_group");
+            JSONArray rules= securityGroup.getJSONArray("security_group_rules");
+            for (int i=0;i<rules.length();i++) {
+                JSONObject rule = (JSONObject) rules.get(i);
+                JSONObject resultObject = new JSONObject();
+                resultObject.put("ruleDirection", rule.getString("direction"));
+                resultObject.put("ruleEtherType", rule.getString("ethertype"));
+                resultObject.put("ruleProtocol", rule.getString("protocol"));
+                resultObject.put("rulePortMin", rule.getString("port_range_min"));
+                resultObject.put("rulePortMax", rule.getString("port_range_max"));
+                resultObject.put("ruleRemoteIP", rule.getString("remote_ip_prefix"));
+                resultObject.put("ruleRemoteG", rule.getString("remote_group_id"));
+                resultObject.put("ruleID", rule.getString("id"));
+                resultArray.put(i, resultObject);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultArray;
+    }
+
+    public JSONObject listVolumeDetail(String response){
+        JSONObject resultObject = new JSONObject();
+        try {
+            JSONObject responseJSON = new JSONObject(response);
+            JSONObject volume = (JSONObject) responseJSON.getJSONObject("volume");
+            resultObject.put("vStatus", volume.getString("status"));
+            resultObject.put("vID", volume.getString("id"));
+            resultObject.put("vName", volume.getString("name"));
+            resultObject.put("vCreate", volume.getString("created_at"));
+            resultObject.put("vSize", volume.getString("size"));
+            resultObject.put("vDescription", volume.getString("description"));
+            resultObject.put("vZone", volume.getString("availability_zone"));
+            resultObject.put("vBootable", volume.getString("bootable"));
+            System.out.println(volume.getString("bootable"));
+            resultObject.put("vEncrypted", volume.getString("encrypted"));
+            JSONArray attachArray=volume.getJSONArray("attachments");
+            int numA=attachArray.length();
+            resultObject.put("vnumA", numA);
+            for(int j=0;j<numA;j++){
+                JSONObject vObject= (JSONObject) attachArray.get(j);
+                String serverID=vObject.getString("server_id");
+                resultObject.put("server"+j, serverID);
+                String device=vObject.getString("device");
+                resultObject.put("device"+j, device);
+
+            }
+
+            //Add attaching servers latter
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultObject;
+    }
+
     //listVolume
     public JSONArray listVolume(String response){
         JSONArray resultArray= new JSONArray();
@@ -139,6 +389,22 @@ public class ResponseParser {
                 resultObject.put("volumeId", instanceObject.getString("id"));
                 resultObject.put("volumeSize", instanceObject.getString("size"));
                 resultObject.put("volumeStatus", instanceObject.getString("status"));
+                resultObject.put("volumeName", instanceObject.getString("name"));
+                resultObject.put("volumeDescription", instanceObject.getString("description"));
+                resultObject.put("volumeAZ", instanceObject.getString("availability_zone"));
+
+                JSONArray attachA=instanceObject.getJSONArray("attachments");
+                int numA=attachA.length();
+                resultObject.put("volumeNumAttach",numA);
+                for(int j=0;j<numA;j++){
+                    JSONObject object=(JSONObject) attachA.get(j);
+                    String attachID=object.getString("attachment_id");
+                    resultObject.put("vattach"+j, attachID);
+                    String device=object.getString("server_id");
+                    resultObject.put("vserver"+j, device);
+
+                }
+
                 resultArray.put(i,resultObject);
             }
             return resultArray;
@@ -147,5 +413,72 @@ public class ResponseParser {
             e.printStackTrace();
         }
         return resultArray;
+    }
+
+    public JSONArray listVolumeType(String response){
+        JSONArray resultArray= new JSONArray();
+        try {
+            JSONObject responseJSON = new JSONObject(response);
+            JSONArray volumesArray= responseJSON.getJSONArray("volume_types");
+            for (int i=0;i<volumesArray.length();i++){
+                JSONObject instanceObject = (JSONObject) volumesArray.get(i);
+                JSONObject resultObject = new JSONObject();
+                resultObject.put("typeId", instanceObject.getString("id"));
+                resultObject.put("typeName", instanceObject.getString("name"));
+
+                resultArray.put(i,resultObject);
+            }
+            return resultArray;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultArray;
+    }
+
+    public JSONArray listSnapshot(String response){
+        JSONArray resultArray= new JSONArray();
+        try {
+            JSONObject responseJSON = new JSONObject(response);
+            JSONArray volumesArray= responseJSON.getJSONArray("snapshots");
+            for (int i=0;i<volumesArray.length();i++){
+                JSONObject instanceObject = (JSONObject) volumesArray.get(i);
+                JSONObject resultObject = new JSONObject();
+                resultObject.put("snapID", instanceObject.getString("id"));
+                resultObject.put("snapSize", instanceObject.getString("size"));
+                resultObject.put("snapStatus", instanceObject.getString("status"));
+                resultObject.put("snapName", instanceObject.getString("name"));
+                resultObject.put("snapDescription", instanceObject.getString("description"));
+
+                resultArray.put(i,resultObject);
+            }
+            return resultArray;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultArray;
+    }
+
+    public JSONObject listVolumeSnapshotDetail(String response){
+        JSONObject resultObject = new JSONObject();
+        try {
+            JSONObject responseJSON = new JSONObject(response);
+            JSONObject volume = (JSONObject) responseJSON.getJSONObject("snapshot");
+            resultObject.put("vStatus", volume.getString("status"));
+            resultObject.put("vID", volume.getString("id"));
+            resultObject.put("vName", volume.getString("name"));
+            resultObject.put("vCreate", volume.getString("created_at"));
+            resultObject.put("vSize", volume.getString("size"));
+            resultObject.put("vDescription", volume.getString("description"));
+            resultObject.put("vVolume", volume.getString("volume_id"));
+
+
+            //Add attaching servers latter
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return resultObject;
     }
 }
